@@ -1,0 +1,20 @@
+FROM jscorptech/django:latest
+
+ARG SCRIPT="entrypoint.sh"
+ENV SCRIPT=$SCRIPT
+
+WORKDIR /code
+
+COPY requirements.txt /code/requirements.txt
+
+RUN uv pip install -r requirements.txt
+
+COPY ./ /code
+
+COPY ./resources/scripts/$SCRIPT /code/$SCRIPT
+
+RUN chmod +x /code/resources/scripts/$SCRIPT
+
+CMD sh /code/resources/scripts/$SCRIPT
+
+

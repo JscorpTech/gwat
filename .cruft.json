@@ -1,0 +1,28 @@
+{
+ "template": "https://github.com/JscorpTech/django",
+ "commit": "dd3662396070d79052eb7e31a3f7bde2ec339acf",
+ "checkout": null,
+ "context": {
+  "cookiecutter": {
+   "cacheops": true,
+   "silk": true,
+   "storage": true,
+   "channels": true,
+   "ckeditor": true,
+   "modeltranslation": true,
+   "parler": false,
+   "rosetta": false,
+   "project_name": "gigawat",
+   "settings_module": "config.settings.local",
+   "runner": "wsgi",
+   "script": "entrypoint.sh",
+   "key": "23092005key",
+   "port": "8081",
+   "phone": "998888112309",
+   "password": "2309",
+   "max_line_length": "120",
+   "project_slug": "gigawat"
+  }
+ },
+ "directory": null
+}
