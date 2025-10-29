@@ -31,6 +31,7 @@ class StationModel(AbstractBaseModel):
 
 class ConnectorModel(AbstractBaseModel):
     conn_id = models.IntegerField()
+    name = models.CharField(_("name"), max_length=10, null=True, blank=True)
     station = models.ForeignKey("StationModel", on_delete=models.CASCADE, related_name="connectors")
     status = models.CharField(
         _("status"), choices=ConnectorStatusEnum.choices, default=ConnectorStatusEnum.SUSPENDED_EV.value

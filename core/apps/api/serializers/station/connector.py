@@ -8,6 +8,7 @@ class BaseConnectorSerializer(serializers.ModelSerializer):
         model = ConnectorModel
         fields = [
             "id",
+            "name",
             "conn_id",
         ]
 
@@ -24,5 +25,6 @@ class CreateConnectorSerializer(BaseConnectorSerializer):
     class Meta(BaseConnectorSerializer.Meta):
         fields = [
             "id",
+            "name",
             "conn_id",
         ]

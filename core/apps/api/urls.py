@@ -1,9 +1,9 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import ConnectorView, StationView
+from .views import StationView, WebhookView
 
 router = DefaultRouter()
-router.register("connector", ConnectorView, basename="connector")
 router.register("station", StationView, basename="station")
+router.register("webhook", WebhookView, basename="webhook")
 urlpatterns = [path("", include(router.urls))]
