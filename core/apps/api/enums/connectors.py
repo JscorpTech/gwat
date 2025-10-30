@@ -12,3 +12,10 @@ class ConnectorStatusEnum(TextChoices):
     RESERVED = "Reserved", _("Reserved")  # Ushbu port oldindan bron qilingan
     UNAVAILABLE = "Unavailable", _("Unavailable")  # Port vaqtincha ishlamaydi (xizmatda)
     FAULTED = "Faulted", _("Faulted")  # Portda nosozlik mavjud
+
+    @classmethod
+    def active(cls):
+        return [
+            cls.AVAILABLE.value,
+            cls.PREPARING.value,
+        ]

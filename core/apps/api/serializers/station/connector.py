@@ -9,6 +9,7 @@ class BaseConnectorSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "status",
             "conn_id",
         ]
 
