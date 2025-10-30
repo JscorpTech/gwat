@@ -1,3 +1,4 @@
+import logging
 from core.apps.shared.models import OptionsModel
 from typing import Optional
 from django.utils.translation import gettext_lazy as _
@@ -14,4 +15,11 @@ def get_exchange_rate():
     exchange_rate = get_config("currency", "exchange_rate")
     if exchange_rate is None:
         raise Exception(_("USD kursi kiritilmagan iltimos adminga murojat qiling"))
-    return float(exchange_rate[0]) 
+    return float(exchange_rate[0])
+
+
+def energy_price() -> float:
+    price = get_config("energy", "price", [0.0])
+    if price is None:
+        return 0.0
+    return float(price[0])

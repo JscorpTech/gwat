@@ -17,10 +17,14 @@ class TransactionModel(AbstractBaseModel):
     status = models.CharField(
         max_length=50, choices=TransactionStatusEnum.choices, default=TransactionStatusEnum.PENDING.value
     )
-    amount = models.BigIntegerField(default=0)
-    energy = models.DecimalField(default=0.0, max_digits=5, decimal_places=5)
-
+    amount = models.DecimalField(default=0, max_digits=10, decimal_places=2)
     limit = models.DecimalField(default=-1.0, max_digits=10, decimal_places=2)
+    soc = models.SmallIntegerField(_("SoC (percent)"), default=0, null=True, blank=True)
+
+    meter_start = models.BigIntegerField(default=0)
+    meter_stop = models.BigIntegerField(default=0)
+    # meter_consumed ishlatilgan energiya
+    meter_consumed = models.BigIntegerField(verbose_name=_("Meter consumed Wh"), default=0)
 
     start_date = models.DateTimeField()
     end_date = models.DateTimeField(null=True, blank=True)

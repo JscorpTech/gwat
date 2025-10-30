@@ -52,5 +52,6 @@ services:
     networks:
       - gigawat
     restart: always
-
+    ports:
+      - 6379:6379
     image: redis

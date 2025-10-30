@@ -3,11 +3,9 @@ from rest_framework.fields import ValidationError
 
 from core.apps.api.enums.connectors import ConnectorStatusEnum
 from core.apps.api.models import TransactionModel
-from core.apps.api.serializers.station.connector import RetrieveConnectorSerializer
 
 
 class BaseTransactionSerializer(serializers.ModelSerializer):
-    conn = RetrieveConnectorSerializer()
 
     class Meta:
         model = TransactionModel
@@ -15,9 +13,14 @@ class BaseTransactionSerializer(serializers.ModelSerializer):
             "id",
             "conn",
             "status",
+            "limit",
             "amount",
-            "energy",
             "tag",
+            "meter_start",
+            "meter_stop",
+            "meter_consumed",
+            "amount",
+            "soc",
             "start_date",
             "end_date",
         ]
@@ -29,6 +32,10 @@ class ListTransactionSerializer(BaseTransactionSerializer):
 
 class RetrieveTransactionSerializer(BaseTransactionSerializer):
     class Meta(BaseTransactionSerializer.Meta): ...
+
+
+class StopTransactionSerializer(serializers.Serializer):
+    transaction = serializers.PrimaryKeyRelatedField(queryset=TransactionModel.objects.all())
 
 
 class CreateTransactionSerializer(BaseTransactionSerializer):
