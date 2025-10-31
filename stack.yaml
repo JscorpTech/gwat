@@ -152,7 +152,8 @@ services:
 
 networks:
   gigawat:
-    driver: overlay 
+    driver: overlay
+    external: true
 
 volumes:
   media:

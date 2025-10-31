@@ -1,11 +1,9 @@
 networks:
   gigawat:
-    external: true
-    driver: overlay 
+    driver: bridge
 
 volumes:
   pg_data: null
-  rabbitmq: null
   pycache: null
 
 services:
