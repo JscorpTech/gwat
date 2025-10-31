@@ -1,11 +1,11 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 
-from core.apps.api.models import ConnectorModel, StationModel
+from core.apps.api.models import ConnectorModel, ChargerModel
 
 
-@admin.register(StationModel)
-class StationAdmin(ModelAdmin):
+@admin.register(ChargerModel)
+class ChargerAdmin(ModelAdmin):
     list_display = (
         "id",
         "__str__",

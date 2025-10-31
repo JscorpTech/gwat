@@ -1,10 +1,10 @@
 from modeltranslation.translator import TranslationOptions, register
 
-from core.apps.api.models import ConnectorModel, StationModel
+from core.apps.api.models import ConnectorModel, ChargerModel
 
 
-@register(StationModel)
-class StationTranslation(TranslationOptions):
+@register(ChargerModel)
+class ChargerTranslation(TranslationOptions):
     fields = []
 
 

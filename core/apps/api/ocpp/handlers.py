@@ -13,6 +13,7 @@ from core.apps.api.schemas.events import (
 )
 from core.apps.api.services.payment import calc_energy_price
 from core.apps.api.services.station import get_meter, parse_meter_values, remote_stop_transaction
+from core.apps.websocket.services.services import send_event
 
 
 class OcppHandler:
@@ -25,7 +26,7 @@ class OcppHandler:
             None:
         """
         data = ChangeConnectorStatus.model_validate(event.data)
-        conn = ConnectorModel.objects.filter(conn_id=data.conn, station__cp_id=data.charger).first()
+        conn = ConnectorModel.objects.filter(conn_id=data.conn, charger__cp_id=data.charger).first()
         if conn is None:
             logging.error("conn not found pk=%s", data.conn)
             return
@@ -48,6 +49,7 @@ class OcppHandler:
         transaction.status = TransactionStatusEnum.CHARGING.value
         transaction.meter_start = data.meter_start
         transaction.save()
+        send_event("charger_events", {"data": "charger ishga tushdi"})
         logging.info("start transaction conn=%s tag=%s", data.conn, data.tag)
 
     def stop_transaction(self, event: Events):
@@ -72,6 +74,7 @@ class OcppHandler:
         transaction.end_date = timezone.now()
         transaction.amount = calc_energy_price(transaction.meter_consumed)
         transaction.save()
+        send_event("charger_events", {"data": "charger o'chirildi"})
         logging.info(
             "stop transaction charger=%s transaction=%s reason=%s", data.charger, data.transaction_id, data.reason
         )
@@ -99,6 +102,6 @@ class OcppHandler:
 
         if transaction.limit != -1.00:
             if price >= transaction.limit:
-                charger = transaction.conn.station.cp_id
+                charger = transaction.conn.charger.cp_id
                 remote_stop_transaction(charger, transaction.pk)
                 logging.info("Limitga yetib keldi limit=%s curent_price=%s", transaction.limit, price)

@@ -2,12 +2,12 @@ import pytest
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-from core.apps.api.models import StationModel
+from core.apps.api.models import ChargerModel
 
 
 @pytest.fixture
 def instance(db):
-    return StationModel._baker()
+    return ChargerModel._baker()
 
 
 @pytest.fixture
@@ -22,9 +22,9 @@ def data(api_client):
     client, instance = api_client
     return (
         {
-            "list": reverse("station-list"),
-            "retrieve": reverse("station-detail", kwargs={"pk": instance.pk}),
-            "retrieve-not-found": reverse("station-detail", kwargs={"pk": 1000}),
+            "list": reverse("charger-list"),
+            "retrieve": reverse("charger-detail", kwargs={"pk": instance.pk}),
+            "retrieve-not-found": reverse("charger-detail", kwargs={"pk": 1000}),
         },
         client,
         instance,

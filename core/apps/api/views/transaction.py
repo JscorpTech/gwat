@@ -41,7 +41,7 @@ class TransactionView(BaseViewSetMixin, ModelViewSet):
         if conn is None:
             raise ValidationError(detail={"conn": "Connector is not found"})
         tag = generate_tag()
-        remote_start_transaction(conn.station.cp_id, conn.pk, tag)
+        remote_start_transaction(conn.charger.cp_id, conn.pk, tag)
         serializer.save(start_date=timezone.now(), user=self.request.user, tag=tag)
 
     @action(methods=["GET"], detail=False, url_name="tag", url_path="tag/(?P<tag>[^/.]+)")
@@ -64,5 +64,5 @@ class TransactionView(BaseViewSetMixin, ModelViewSet):
         ser.is_valid(raise_exception=True)
         data = ser.validated_data
         transaction = data.get("transaction")
-        remote_stop_transaction(transaction.conn.station.cp_id, transaction.pk)
+        remote_stop_transaction(transaction.conn.charger.cp_id, transaction.pk)
         return Response(data={"detail": _("transaction to'xtatildi")})

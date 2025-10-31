@@ -1,7 +1,7 @@
 # from django.core.exceptions import ValidationError
 
 
-class StationValidator:
+class ChargerValidator:
     def __init__(self): ...
 
     def __call__(self):

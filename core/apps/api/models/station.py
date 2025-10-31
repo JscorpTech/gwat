@@ -6,13 +6,13 @@ from model_bakery import baker
 from core.apps.api.enums.connectors import ConnectorStatusEnum
 
 
-class StationModel(AbstractBaseModel):
+class ChargerModel(AbstractBaseModel):
     name = models.CharField(_("name"))
     cp_id = models.PositiveBigIntegerField(editable=False, unique=True)
 
     def save(self, *args, **kwargs):
         if not self.cp_id:
-            last = StationModel.objects.order_by("-cp_id").first()
+            last = ChargerModel.objects.order_by("-cp_id").first()
             self.cp_id = (last.cp_id + 1) if last else 1
         super().save(*args, **kwargs)
 
@@ -24,15 +24,15 @@ class StationModel(AbstractBaseModel):
         return baker.make(cls)
 
     class Meta:
-        db_table = "station"
-        verbose_name = _("StationModel")
-        verbose_name_plural = _("StationModels")
+        db_table = "charger"
+        verbose_name = _("ChargerModel")
+        verbose_name_plural = _("ChargerModels")
 
 
 class ConnectorModel(AbstractBaseModel):
     conn_id = models.IntegerField()
     name = models.CharField(_("name"), max_length=10, null=True, blank=True)
-    station = models.ForeignKey("StationModel", on_delete=models.CASCADE, related_name="connectors")
+    charger = models.ForeignKey("ChargerModel", on_delete=models.CASCADE, related_name="connectors")
     status = models.CharField(
         _("status"), choices=ConnectorStatusEnum.choices, default=ConnectorStatusEnum.SUSPENDED_EV.value
     )

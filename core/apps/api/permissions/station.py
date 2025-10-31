@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 
-class StationPermission(permissions.BasePermission):
+class ChargerPermission(permissions.BasePermission):
 
     def __init__(self) -> None: ...
 

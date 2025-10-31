@@ -14,6 +14,11 @@ client = redis.Redis(host=env.str("REDIS_HOST", "redis"))
 
 
 def generate_str(length=10):
+    """generate random chars
+
+    Args:
+        length (int):
+    """
     chars = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
     tag = "".join([chars[randrange(1, len(chars))] for _ in range(length)])
     if TransactionModel.objects.filter(tag=tag).exists():
@@ -21,7 +26,14 @@ def generate_str(length=10):
     return tag
 
 
-def generate_tag(length=10):
+def generate_tag(length=10) -> str:
+    """Generate transaction tag
+
+    Args:
+        length (int):
+    Returns:
+        str: random chars
+    """
     return generate_str(length)
 
 
@@ -82,6 +94,14 @@ def remote_stop_transaction(charger_id: int, transaction_id: int):
 
 
 def parse_meter_values(data: List[MeterValueData]) -> List[Dict[str, SampledValue]]:
+    """parse ocpp1.6 meter values list -> dict
+
+    Args:
+        data: [TODO:description]
+
+    Returns:
+        [TODO:description]
+    """
     meter_values = []
     for item in data:
         sampledValue = {}
@@ -92,6 +112,14 @@ def parse_meter_values(data: List[MeterValueData]) -> List[Dict[str, SampledValu
 
 
 def get_meter(data: Dict[str, SampledValue]) -> int:
+    """Sarflangan energiyani olish
+
+    Args:
+        data: [TODO:description]
+
+    Returns:
+        [TODO:description]
+    """
     value = data["Energy.Active.Import.Register"].value
     if value == "":
         return 0

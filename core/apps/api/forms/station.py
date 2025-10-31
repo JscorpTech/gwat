@@ -1,12 +1,12 @@
 from django import forms
 
-from core.apps.api.models import ConnectorModel, StationModel
+from core.apps.api.models import ConnectorModel, ChargerModel
 
 
-class StationForm(forms.ModelForm):
+class ChargerForm(forms.ModelForm):
 
     class Meta:
-        model = StationModel
+        model = ChargerModel
         fields = "__all__"
 
 

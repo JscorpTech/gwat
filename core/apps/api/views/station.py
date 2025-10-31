@@ -3,19 +3,19 @@ from drf_spectacular.utils import extend_schema
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from core.apps.api.models import StationModel
-from core.apps.api.serializers.station import CreateStationSerializer, ListStationSerializer, RetrieveStationSerializer
+from core.apps.api.models import ChargerModel
+from core.apps.api.serializers.station import CreateChargerSerializer, ListChargerSerializer, RetrieveChargerSerializer
 
 
-@extend_schema(tags=["station"])
-class StationView(BaseViewSetMixin, ReadOnlyModelViewSet):
-    queryset = StationModel.objects.all()
-    serializer_class = ListStationSerializer
+@extend_schema(tags=["charger"])
+class ChargerView(BaseViewSetMixin, ReadOnlyModelViewSet):
+    queryset = ChargerModel.objects.all()
+    serializer_class = ListChargerSerializer
     permission_classes = [AllowAny]
 
     action_permission_classes = {}
     action_serializer_class = {
-        "list": ListStationSerializer,
-        "retrieve": RetrieveStationSerializer,
-        "create": CreateStationSerializer,
+        "list": ListChargerSerializer,
+        "retrieve": RetrieveChargerSerializer,
+        "create": CreateChargerSerializer,
     }

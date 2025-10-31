@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class WsEventsEnum(Enum):
-    STATUS_STATUS = "station_status"
+    CHARGER_STATUS = "charger_status"
 
 
 class WsEvents(BaseModel):

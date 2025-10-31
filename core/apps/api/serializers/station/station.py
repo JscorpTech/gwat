@@ -1,14 +1,14 @@
 from rest_framework import serializers
 
-from core.apps.api.models import StationModel
+from core.apps.api.models import ChargerModel
 from core.apps.api.serializers.station.connector import ListConnectorSerializer
 
 
-class BaseStationSerializer(serializers.ModelSerializer):
+class BaseChargerSerializer(serializers.ModelSerializer):
     connectors = ListConnectorSerializer(many=True)
 
     class Meta:
-        model = StationModel
+        model = ChargerModel
         fields = [
             "id",
             "name",
@@ -17,18 +17,18 @@ class BaseStationSerializer(serializers.ModelSerializer):
         ]
 
 
-class ListStationSerializer(BaseStationSerializer):
-    class Meta(BaseStationSerializer.Meta): ...
+class ListChargerSerializer(BaseChargerSerializer):
+    class Meta(BaseChargerSerializer.Meta): ...
 
 
-class RetrieveStationSerializer(BaseStationSerializer):
-    class Meta(BaseStationSerializer.Meta): ...
+class RetrieveChargerSerializer(BaseChargerSerializer):
+    class Meta(BaseChargerSerializer.Meta): ...
 
 
-class CreateStationSerializer(BaseStationSerializer):
+class CreateChargerSerializer(BaseChargerSerializer):
     connectors = None
 
-    class Meta(BaseStationSerializer.Meta):
+    class Meta(BaseChargerSerializer.Meta):
         fields = [
             "id",
             "name",
