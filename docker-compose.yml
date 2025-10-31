@@ -1,6 +1,7 @@
 networks:
   gigawat:
-    driver: bridge
+    external: true
+    driver: overlay 
 
 volumes:
   pg_data: null
