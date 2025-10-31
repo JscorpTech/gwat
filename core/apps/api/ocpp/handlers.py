@@ -91,6 +91,7 @@ class OcppHandler:
         price = calc_energy_price(meter_consumed)
         transaction.amount = price
         transaction.meter_consumed = meter_consumed
+        transaction.last_meter = meter_current
         transaction.save()
         ws_transaction_event(transaction)
 

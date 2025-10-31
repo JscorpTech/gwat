@@ -20,7 +20,13 @@ def check_fail_chargers():
     logging.info("checking fail chargers found=%s", chargers.count())
     for charger in chargers:
         logging.warning("Charger health yubormagani uchun transaction va connectorlar o'chirildi charger=%s", charger)
-        for conn in charger.connectors:
+        for conn in charger.connectors.filter(
+            status__in=[
+                ConnectorStatusEnum.AVAILABLE.value,
+                ConnectorStatusEnum.CHARGING.value,
+                ConnectorStatusEnum.PREPARING.value,
+            ]
+        ):
             conn.status = ConnectorStatusEnum.FAULTED.value
             conn.save()
             for transaction in conn.transactions.filter(
@@ -32,5 +38,5 @@ def check_fail_chargers():
                     reason="",
                     meter_stop=transaction.last_meter,
                 )
-                stop_transaction(transaction, TransactionStatusEnum.FAIL, data)
+                stop_transaction(transaction, TransactionStatusEnum.PENDING, data)
             ws_connector_event(conn)

@@ -71,6 +71,7 @@ class TransactionView(BaseViewSetMixin, ModelViewSet):
         transaction = data.get("transaction")
         transaction.status = TransactionStatusEnum.PENDING.value
         transaction.save()
+        ws_transaction_event(transaction)
         remote_stop_transaction(transaction.conn.charger.cp_id, transaction.pk)
         return Response(data={"detail": _("transaction to'xtatildi")})
 

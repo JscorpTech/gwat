@@ -25,7 +25,9 @@ class TransactionModel(AbstractBaseModel):
     meter_start = models.BigIntegerField(default=0)
     meter_stop = models.BigIntegerField(default=0)
     # meter_consumed ishlatilgan energiya
-    meter_consumed = models.BigIntegerField(verbose_name=_("Meter consumed Wh"), default=0)
+    meter_consumed = models.BigIntegerField(verbose_name=_("Meter consumed (Wh)"), default=0)
+    # last_meter oxirig yangilanishdagi Wh
+    last_meter = models.BigIntegerField(verbose_name=_("Last meter (Wh)"), default=0)
 
     start_date = models.DateTimeField()
     end_date = models.DateTimeField(null=True, blank=True)
