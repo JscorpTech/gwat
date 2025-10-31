@@ -29,7 +29,7 @@ class OcppHandler:
         data = ChangeConnectorStatus.model_validate(event.data)
         conn = ConnectorModel.objects.filter(conn_id=data.conn, charger__cp_id=data.charger).first()
         if conn is None:
-            logging.error("conn not found pk=%s", data.conn)
+            logging.error("conn not found conn=%s charger=%s", data.conn, data.charger)
             return
         conn.status = data.status
         conn.save()
@@ -83,7 +83,11 @@ class OcppHandler:
         if transaction is None:
             logging.error("Meter value event transaction not found transaction_id=%s", data.transaction_id)
             return
-        meter_value = parse_meter_values(data.meter_value)[0]
+        meter_value = parse_meter_values(data.meter_value)
+        if len(meter_value) <= 0:
+            logging.critical("MeterValue topilmadi")
+            return
+        meter_value = meter_value[0]
         meter_current = get_meter(meter_value)
         meter_start = transaction.meter_start
         # meter_consumed: ishlatilgan energiya

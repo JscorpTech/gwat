@@ -38,5 +38,11 @@ def check_fail_chargers():
                     reason="",
                     meter_stop=transaction.last_meter,
                 )
+                logging.info(
+                    "Transaction fail transaction=%s conn=%s charger=%s",
+                    transaction,
+                    conn,
+                    charger,
+                )
                 stop_transaction(transaction, TransactionStatusEnum.PENDING, data)
             ws_connector_event(conn)

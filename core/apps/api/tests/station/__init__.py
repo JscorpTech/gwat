@@ -1,1 +1,1 @@
-from .test_station import *  # noqa
+from .test_charger import *  # noqa

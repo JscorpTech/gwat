@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Optional, Union
 from pydantic import BaseModel, ConfigDict
 
 from core.apps.api.enums.connectors import ConnectorStatusEnum
@@ -27,7 +27,7 @@ class TransactionMetrics(BaseModel):
     price: str
     meter_consumed: int
     power: int
-    limit: Optional[int]
+    limit: Optional[Union[int, str]]
     status: TransactionStatusEnum
 
     model_config = ConfigDict(use_enum_values=True)

@@ -24,10 +24,7 @@ def generate_str(length=10):
         length (int):
     """
     chars = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
-    tag = "".join([chars[randrange(1, len(chars))] for _ in range(length)])
-    if TransactionModel.objects.filter(tag=tag).exists():
-        return generate_tag()
-    return tag
+    return "".join([chars[randrange(1, len(chars))] for _ in range(length)])
 
 
 def generate_tag(length=10) -> str:
@@ -38,7 +35,10 @@ def generate_tag(length=10) -> str:
     Returns:
         str: random chars
     """
-    return generate_str(length)
+    tag = generate_str(length)
+    if TransactionModel.objects.filter(tag=tag).exists():
+        return generate_tag()
+    return tag
 
 
 def remote_start_transaction(charger_id: str, conn_id: int, tag: str):
@@ -51,6 +51,7 @@ def remote_start_transaction(charger_id: str, conn_id: int, tag: str):
         None:
     """
     logging.info("Remote command start transaction charger=%s conn=%s tag=%s", charger_id, conn_id, tag)
+    logging.info(id(client))
     client.rpush(
         "commands",
         json.dumps(

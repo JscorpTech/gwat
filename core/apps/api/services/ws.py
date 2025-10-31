@@ -1,4 +1,3 @@
-from django.utils import timezone
 from core.apps.api.models.station import ChargerModel, ConnectorModel
 from core.apps.api.models.transaction import TransactionModel
 from core.apps.websocket.schemas.events import ConnectorStatus, Health, TransactionMetrics, WsEvents
@@ -19,7 +18,7 @@ def ws_transaction_event(transaction: TransactionModel):
         conn=conn.pk,
         meter_consumed=transaction.meter_consumed,
         price=str(transaction.amount),
-        limit=transaction.limit,
+        limit=str(transaction.limit),
         power=conn.power,
         status=transaction.status,
     )
@@ -36,7 +35,7 @@ def ws_health_event(charger: ChargerModel):
     """
     data = Health(
         charger=charger.pk,
-        last_health=charger.last_health.isoformat(),
+        last_health=charger.last_health.isoformat() if charger.last_health is not None else "",
     )
     payload = WsEvents(event=WsEventsEnum.HEALTH, data=data)
     send_event("charger_events", payload.model_dump())
