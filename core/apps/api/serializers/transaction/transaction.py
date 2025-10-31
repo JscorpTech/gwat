@@ -15,6 +15,7 @@ class BaseTransactionSerializer(serializers.ModelSerializer):
             "status",
             "limit",
             "amount",
+            "is_active",
             "tag",
             "meter_start",
             "meter_stop",

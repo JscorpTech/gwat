@@ -9,6 +9,7 @@ from core.apps.api.enums.connectors import ConnectorStatusEnum
 class ChargerModel(AbstractBaseModel):
     name = models.CharField(_("name"))
     cp_id = models.PositiveBigIntegerField(editable=False, unique=True)
+    last_health = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.cp_id:
@@ -33,6 +34,7 @@ class ConnectorModel(AbstractBaseModel):
     conn_id = models.IntegerField()
     name = models.CharField(_("name"), max_length=10, null=True, blank=True)
     charger = models.ForeignKey("ChargerModel", on_delete=models.CASCADE, related_name="connectors")
+    power = models.CharField(_("Power (Wh)"), default=0)
     status = models.CharField(
         _("status"), choices=ConnectorStatusEnum.choices, default=ConnectorStatusEnum.SUSPENDED_EV.value
     )

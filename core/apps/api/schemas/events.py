@@ -1,7 +1,7 @@
 from typing import Any, List
 from pydantic import BaseModel, ConfigDict
-from enum import Enum
 from core.apps.api.enums import ConnectorStatusEnum
+from enum import Enum
 
 
 class EventsEnum(Enum):
@@ -9,6 +9,7 @@ class EventsEnum(Enum):
     START_TRANSACTION = "start_transaction"
     STOP_TRANSACTION = "stop_transaction"
     METER_VALUE = "meter_value"
+    HEALTH = "health"
 
 
 class Events(BaseModel):
@@ -38,7 +39,7 @@ class StartTransaction(BaseModel):
 class StopTransaction(BaseModel):
     charger: int
     transaction_id: int
-    reason: str
+    reason: str = ""
     meter_stop: int
 
     model_config = ConfigDict(use_enum_values=True)
@@ -63,3 +64,7 @@ class MeterValue(BaseModel):
     conn: int
     transaction_id: int
     meter_value: List[MeterValueData]
+
+
+class Health(BaseModel):
+    charger: str

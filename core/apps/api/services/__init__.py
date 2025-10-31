@@ -1,2 +1,3 @@
-from .station import *  # noqa
+from .ocpp import *  # noqa
 from .payment import *  # noqa
+from .ws import *  # noqa

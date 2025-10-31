@@ -9,7 +9,7 @@ from core.apps.api.serializers.station import CreateChargerSerializer, ListCharg
 
 @extend_schema(tags=["charger"])
 class ChargerView(BaseViewSetMixin, ReadOnlyModelViewSet):
-    queryset = ChargerModel.objects.all()
+    queryset = ChargerModel.objects.order_by("name")
     serializer_class = ListChargerSerializer
     permission_classes = [AllowAny]
 

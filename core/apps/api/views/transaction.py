@@ -8,6 +8,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 
+from core.apps.api.enums.transaction import TransactionStatusEnum
 from core.apps.api.models import TransactionModel
 from core.apps.api.serializers.transaction import (
     CreateTransactionSerializer,
@@ -15,9 +16,11 @@ from core.apps.api.serializers.transaction import (
     RetrieveTransactionSerializer,
 )
 from core.apps.api.serializers.transaction.transaction import StopTransactionSerializer
-from core.apps.api.services.station import generate_tag, remote_start_transaction, remote_stop_transaction
+from core.apps.api.services.ocpp import generate_tag, remote_start_transaction, remote_stop_transaction
 from django.utils import timezone
 from rest_framework.decorators import action
+
+from core.apps.api.services.ws import ws_transaction_event
 
 
 @extend_schema(tags=["transaction"])
@@ -34,6 +37,7 @@ class TransactionView(BaseViewSetMixin, ModelViewSet):
         "create": CreateTransactionSerializer,
         "start": CreateTransactionSerializer,
         "stop": StopTransactionSerializer,
+        "clear": StopTransactionSerializer,
     }
 
     def perform_create(self, serializer):
@@ -42,7 +46,8 @@ class TransactionView(BaseViewSetMixin, ModelViewSet):
             raise ValidationError(detail={"conn": "Connector is not found"})
         tag = generate_tag()
         remote_start_transaction(conn.charger.cp_id, conn.pk, tag)
-        serializer.save(start_date=timezone.now(), user=self.request.user, tag=tag)
+        instance = serializer.save(start_date=timezone.now(), user=self.request.user, tag=tag)
+        ws_transaction_event(instance)
 
     @action(methods=["GET"], detail=False, url_name="tag", url_path="tag/(?P<tag>[^/.]+)")
     def get_transaction_from_tag(self, request, tag):
@@ -64,5 +69,18 @@ class TransactionView(BaseViewSetMixin, ModelViewSet):
         ser.is_valid(raise_exception=True)
         data = ser.validated_data
         transaction = data.get("transaction")
+        transaction.status = TransactionStatusEnum.PENDING.value
+        transaction.save()
         remote_stop_transaction(transaction.conn.charger.cp_id, transaction.pk)
         return Response(data={"detail": _("transaction to'xtatildi")})
+
+    @action(methods=["POST"], detail=False, url_name="clear", url_path="clear")
+    def clear(self, request, *args, **kwargs):
+        ser = self.get_serializer(data=request.data)
+        ser.is_valid(raise_exception=True)
+        data = ser.validated_data
+        transaction = data.get("transaction")
+        transaction.status = TransactionStatusEnum.COMPLATE.value
+        transaction.is_active = False
+        transaction.save()
+        return Response(data={"detail": _("tozalandi")})

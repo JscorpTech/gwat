@@ -28,6 +28,7 @@ class Command(BaseCommand):
                         EventsEnum.START_TRANSACTION.value: ocpp_handler.start_transaction,
                         EventsEnum.STOP_TRANSACTION.value: ocpp_handler.stop_transaction,
                         EventsEnum.METER_VALUE.value: ocpp_handler.meter_value,
+                        EventsEnum.HEALTH.value: ocpp_handler.health,
                     }
                     handler = handlers.get(event.event)
                     if handler is None:
@@ -36,7 +37,7 @@ class Command(BaseCommand):
                     logging.info("Event: message=%s", message)
                     handler(event)
                 except Exception as e:
-                    logging.error("events handler error=%s", str(e))
+                    logging.error("events handler event=%s error=%s", event.event, str(e))
         except KeyboardInterrupt:
             self.stdout.write(self.style.WARNING("event handler to'xtatildi"))
         logging.info("event handler to'xtatildi")

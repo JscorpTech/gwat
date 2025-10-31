@@ -96,14 +96,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 # fmt: on
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.{}".format(validator)
-    } for validator in [
-        "UserAttributeSimilarityValidator",
-        "MinimumLengthValidator",
-        "CommonPasswordValidator",
-        "NumericPasswordValidator"
-    ]
+    {"NAME": "django.contrib.auth.password_validation.{}".format(validator)} for validator in ["MinimumLengthValidator"]
 ]
 
 TIME_ZONE = "Asia/Tashkent"
@@ -156,7 +149,6 @@ MODELTRANSLATION_LANGUAGES = ("uz", "ru", "en")
 MODELTRANSLATION_DEFAULT_LANGUAGE = "uz"
 
 
-
 JST_LANGUAGES = [
     {
         "code": "uz",
@@ -170,5 +162,5 @@ JST_LANGUAGES = [
     {
         "code": "ru",
         "name": "Russia",
-    }
+    },
 ]

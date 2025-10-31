@@ -2,12 +2,16 @@
 import json
 import logging
 from typing import Dict, List
+from django.utils import timezone
 import redis
 from config.env import env
+from core.apps.api.enums.transaction import TransactionStatusEnum
 from core.apps.api.models.transaction import TransactionModel
 from random import randrange
 
-from core.apps.api.schemas.events import MeterValueData, SampledValue
+from core.apps.api.schemas.events import MeterValueData, SampledValue, StopTransaction
+from core.apps.api.services.payment import calc_energy_price
+from core.apps.api.services.ws import ws_transaction_event
 
 
 client = redis.Redis(host=env.str("REDIS_HOST", "redis"))
@@ -124,3 +128,25 @@ def get_meter(data: Dict[str, SampledValue]) -> int:
     if value == "":
         return 0
     return int(value)
+
+
+def stop_transaction(transaction: TransactionModel, status: TransactionStatusEnum, data: StopTransaction):
+    """Transactionni tugatish databaseni yangilaydi va notification yuboradi
+
+    Args:
+        transaction: [TODO:description]
+        status: [TODO:description]
+        data: [TODO:description]
+    """
+    transaction.status = status.value
+    transaction.meter_stop = data.meter_stop
+    if transaction.meter_stop < transaction.meter_start:
+        logging.critical("Transaction meter_stop meter_start dan kichik bu daxshatli xato to'g'irlash kerak")
+        transaction.meter_consumed = 0
+    else:
+        transaction.meter_consumed = transaction.meter_stop - transaction.meter_start
+    transaction.end_date = timezone.now()
+    transaction.amount = calc_energy_price(transaction.meter_consumed)
+    transaction.save()
+    ws_transaction_event(transaction)
+    logging.info("stop transaction charger=%s transaction=%s reason=%s", data.charger, data.transaction_id, data.reason)

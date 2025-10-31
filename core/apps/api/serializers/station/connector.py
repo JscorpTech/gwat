@@ -10,11 +10,7 @@ class BaseConnectorSerializer(serializers.ModelSerializer):
     transaction = serializers.SerializerMethodField()
 
     def get_transaction(self, obj):
-        transaction = (
-            TransactionModel.objects.filter(conn=obj, status=TransactionStatusEnum.CHARGING.value)
-            .order_by("-id")
-            .first()
-        )
+        transaction = TransactionModel.objects.filter(conn=obj, is_active=True).order_by("-id").first()
         if transaction is None:
             return None
         return RetrieveTransactionSerializer(instance=transaction).data
@@ -25,6 +21,7 @@ class BaseConnectorSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "status",
+            "power",
             "conn_id",
             "transaction",
         )

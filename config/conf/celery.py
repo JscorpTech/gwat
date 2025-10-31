@@ -1,7 +1,8 @@
+from celery.schedules import crontab
+
 CELERY_BEAT_SCHEDULE = {
-    # "test": {
-    #     "task": "core.apps.home.tasks.demo.add",
-    #     "schedule": 5.0,
-    #     "args": (1, 2)
-    # },
+    "check_fail_chargers": {
+        "task": "core.apps.api.tasks.charger.check_fail_chargers",
+        "schedule": crontab(minute="*/5"),
+    },
 }

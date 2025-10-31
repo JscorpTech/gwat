@@ -13,6 +13,7 @@ class BaseChargerSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "cp_id",
+            "last_health",
             "connectors",
         ]
 
