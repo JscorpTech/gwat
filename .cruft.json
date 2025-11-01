@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/JscorpTech/django",
-  "commit": "348283bce8f101acfc5eef1ddd6774d4ffee8c96",
+  "commit": "7e5270573d36c1da7d4e0dcc45635719c73947dd",
   "checkout": null,
   "context": {
     "cookiecutter": {
@@ -26,7 +26,7 @@
       "parler": false,
       "version": "0.1.1",
       "_template": "https://github.com/JscorpTech/django",
-      "_commit": "348283bce8f101acfc5eef1ddd6774d4ffee8c96"
+      "_commit": "7e5270573d36c1da7d4e0dcc45635719c73947dd"
     }
   },
   "directory": null
