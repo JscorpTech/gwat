@@ -128,7 +128,7 @@ def get_meter(data: Dict[str, SampledValue]) -> int:
     value = data["Energy.Active.Import.Register"].value
     if value == "":
         return 0
-    return int(value)
+    return int(float(value))
 
 
 def stop_transaction(transaction: TransactionModel, status: TransactionStatusEnum, data: StopTransaction):
