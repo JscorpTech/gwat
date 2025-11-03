@@ -94,10 +94,12 @@ services:
       - gwat
     volumes:
       - logs:/code/resources/logs/:rw
-      - /var/log/gwat/:/code/resources/logs/:rw
       - media:/code/resources/media/:rw
       - static:/code/resources/staticfiles/:rw
       - pycache:/var/cache/pycache:rw
+      - type: bind
+        source: /var/log/gwat
+        target: /code/resources/logs
     tmpfs:
       - /tmp
       - /run
