@@ -151,7 +151,9 @@ jobs:
               "SCRIPT=entrypoint-server.sh" \
               "DJANGO_SECRET_KEY=${{ secrets.SECRET_KEY }}" \
               "DB_HOST=postgres" \
-              "DB_NAME=gwat"
+              "DB_NAME=gwat" \
+              "ALLOWED_HOSTS=127.0.0.1,web,api.dwatt.uz" \
+              "CSRF_TRUSTED_ORIGINS=http://127.0.0.1:8081,https://api.dwatt.uz"
 
             export PORT=8080
             docker stack deploy -c stack.yaml ${{ env.PROJECT_NAME }}
