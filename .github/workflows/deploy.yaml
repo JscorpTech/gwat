@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  PROJECT_NAME: gigawat  # O'ZGARTIRING: Loyihangiz nomi
+  PROJECT_NAME: gwat  # O'ZGARTIRING: Loyihangiz nomi
 
 
 permissions:
