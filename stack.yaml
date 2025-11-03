@@ -84,7 +84,7 @@ services:
         max-file: "5"
 
   web:
-    image: jscorptech/gigawat:2
+    image: jscorptech/gigawat:3
     env_file:
       - .env
     environment:
