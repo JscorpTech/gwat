@@ -45,7 +45,7 @@ class TransactionView(BaseViewSetMixin, ModelViewSet):
         if conn is None:
             raise ValidationError(detail={"conn": "Connector is not found"})
         tag = generate_tag()
-        remote_start_transaction(conn.charger.cp_id, conn.pk, tag)
+        remote_start_transaction(conn.charger.cp_id, conn.conn_id, tag)
         instance = serializer.save(start_date=timezone.now(), user=self.request.user, tag=tag)
         ws_transaction_event(instance)
 
