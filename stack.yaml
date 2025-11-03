@@ -5,12 +5,12 @@ services:
     image: postgres:15-alpine
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=gigawat
+      - POSTGRES_DB=gwat
       - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password
     secrets:
       - postgres_password
     networks:
-      - gigawat
+      - gwat
     volumes:
       - pg_data:/var/lib/postgresql/data:rw
     deploy:
@@ -34,7 +34,7 @@ services:
           cpus: '1.00'
           memory: 512M
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d gigawat"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d gwat"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -49,7 +49,7 @@ services:
     image: redis:7-alpine
     command: ["redis-server", "--appendonly", "yes"]
     networks:
-      - gigawat
+      - gwat
     volumes:
       - redis_data:/data:rw
     deploy:
@@ -84,14 +84,14 @@ services:
         max-file: "5"
 
   web:
-    image: jscorptech/gigawat:3
+    image: jscorptech/gwat:3
     env_file:
       - .env
     environment:
       - PYTHONPYCACHEPREFIX=/var/cache/pycache
       - DJANGO_SETTINGS_MODULE=config.settings.production
     networks:
-      - gigawat
+      - gwat
     volumes:
       - logs:/code/resources/logs/:rw
       - media:/code/resources/media/:rw
@@ -143,7 +143,7 @@ services:
       - media:/usr/share/nginx/html/resources/media/:ro
       - static:/usr/share/nginx/html/resources/staticfiles/:ro
     networks:
-      - gigawat
+      - gwat
     deploy:
       mode: global
       placement:
@@ -179,7 +179,7 @@ services:
         max-file: "5"
 
 networks:
-  gigawat:
+  gwat:
     driver: overlay
     attachable: true
     external: true
