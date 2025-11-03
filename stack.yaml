@@ -93,7 +93,6 @@ services:
     networks:
       - gwat
     volumes:
-      - logs:/code/resources/logs/:rw
       - media:/code/resources/media/:rw
       - static:/code/resources/staticfiles/:rw
       - pycache:/var/cache/pycache:rw
