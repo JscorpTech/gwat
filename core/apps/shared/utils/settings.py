@@ -1,3 +1,4 @@
+from decimal import Decimal
 import logging
 from core.apps.shared.models import OptionsModel
 from typing import Optional
@@ -18,8 +19,8 @@ def get_exchange_rate():
     return float(exchange_rate[0])
 
 
-def energy_price() -> float:
+def energy_price() -> Decimal:
     price = get_config("energy", "price", [0.0])
     if price is None:
-        return 0.0
-    return float(price[0])
+        return Decimal("0.0")
+    return Decimal(price[0])

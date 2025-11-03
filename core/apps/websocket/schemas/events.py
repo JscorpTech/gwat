@@ -25,7 +25,7 @@ class TransactionMetrics(BaseModel):
     conn: int
     charger: int
     price: str
-    meter_consumed: int
+    meter_consumed: Union[str, int]
     power: int
     limit: Optional[Union[int, str]]
     status: TransactionStatusEnum

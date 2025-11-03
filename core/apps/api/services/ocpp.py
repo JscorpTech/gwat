@@ -1,4 +1,5 @@
 # type: ignore
+from decimal import Decimal
 import json
 import logging
 from typing import Dict, List
@@ -116,7 +117,7 @@ def parse_meter_values(data: List[MeterValueData]) -> List[Dict[str, SampledValu
     return meter_values
 
 
-def get_meter(data: Dict[str, SampledValue]) -> int:
+def get_meter(data: Dict[str, SampledValue]) -> Decimal:
     """Sarflangan energiyani olish
 
     Args:
@@ -128,7 +129,11 @@ def get_meter(data: Dict[str, SampledValue]) -> int:
     value = data["Energy.Active.Import.Register"].value
     if value == "":
         return 0
-    return int(float(value))
+    try:
+        return Decimal(value)
+    except ValueError as err:
+        logging.critical("meter value olishda xatolik", err)
+        return 0
 
 
 def stop_transaction(transaction: TransactionModel, status: TransactionStatusEnum, data: StopTransaction):

@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_core.models import AbstractBaseModel
@@ -17,17 +18,19 @@ class TransactionModel(AbstractBaseModel):
     status = models.CharField(
         max_length=50, choices=TransactionStatusEnum.choices, default=TransactionStatusEnum.PENDING.value
     )
-    amount = models.DecimalField(default=0, max_digits=10, decimal_places=2)
-    limit = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    amount = models.DecimalField(default=Decimal("0.00"), max_digits=20, decimal_places=2)
+    limit = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     soc = models.SmallIntegerField(_("SoC (percent)"), default=0, null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
-    meter_start = models.BigIntegerField(default=0)
-    meter_stop = models.BigIntegerField(default=0)
+    meter_start = models.DecimalField(default=Decimal("0.00"), max_digits=20, decimal_places=10)
+    meter_stop = models.DecimalField(default=Decimal("0.00"), max_digits=20, decimal_places=10)
     # meter_consumed ishlatilgan energiya
-    meter_consumed = models.BigIntegerField(verbose_name=_("Meter consumed (Wh)"), default=0)
+    meter_consumed = models.DecimalField(
+        verbose_name=_("Meter consumed (Wh)"), default=Decimal("0.00"), max_digits=20, decimal_places=10
+    )
     # last_meter oxirig yangilanishdagi Wh
-    last_meter = models.BigIntegerField(verbose_name=_("Last meter (Wh)"), default=0)
+    last_meter = models.DecimalField(verbose_name=_("Last meter (Wh)"), default=0, max_digits=20, decimal_places=10)
 
     start_date = models.DateTimeField()
     end_date = models.DateTimeField(null=True, blank=True)
