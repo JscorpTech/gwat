@@ -8,7 +8,7 @@ from core.apps.api.enums.connectors import ConnectorStatusEnum
 
 class ChargerModel(AbstractBaseModel):
     name = models.CharField(_("name"))
-    cp_id = models.PositiveBigIntegerField(editable=False, unique=True)
+    cp_id = models.PositiveBigIntegerField(_("CpId"), unique=True)
     last_health = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
