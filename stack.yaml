@@ -182,6 +182,7 @@ networks:
   gigawat:
     driver: overlay
     attachable: true
+    external: true
 
 volumes:
   media:
