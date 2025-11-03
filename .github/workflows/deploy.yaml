@@ -150,7 +150,8 @@ jobs:
             update_env \
               "SCRIPT=entrypoint-server.sh" \
               "DJANGO_SECRET_KEY=${{ secrets.SECRET_KEY }}" \
-              "DB_HOST=postgres"
+              "DB_HOST=postgres" \
+              "DB_NAME=gwat"
 
             export PORT=8080
             docker stack deploy -c stack.yaml ${{ env.PROJECT_NAME }}
