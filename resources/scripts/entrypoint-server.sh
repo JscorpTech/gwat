@@ -9,5 +9,5 @@ python3 manage.py collectstatic --noinput
 python3 manage.py migrate --noinput
 
 python3 manage.py events &
-gunicorn config.wsgi:application -b 0.0.0.0:8000 --workers 4
+gunicorn config.wsgi:application -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker
 exit $?
