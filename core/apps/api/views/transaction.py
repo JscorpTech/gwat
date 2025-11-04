@@ -4,8 +4,9 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 
 from core.apps.api.enums.transaction import TransactionStatusEnum
@@ -15,7 +16,7 @@ from core.apps.api.serializers.transaction import (
     ListTransactionSerializer,
     RetrieveTransactionSerializer,
 )
-from core.apps.api.serializers.transaction.transaction import StopTransactionSerializer
+from core.apps.api.serializers.transaction.transaction import MiniTransactionSerializer, StopTransactionSerializer
 from core.apps.api.services.ocpp import generate_tag, remote_start_transaction, remote_stop_transaction
 from django.utils import timezone
 from rest_framework.decorators import action
@@ -24,7 +25,7 @@ from core.apps.api.services.ws import ws_transaction_event
 
 
 @extend_schema(tags=["transaction"])
-class TransactionView(BaseViewSetMixin, ModelViewSet):
+class TransactionView(BaseViewSetMixin, ListModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet):
     queryset = TransactionModel.objects.order_by("-id")
     serializer_class = ListTransactionSerializer
     permission_classes = [IsAuthenticated]
@@ -33,21 +34,11 @@ class TransactionView(BaseViewSetMixin, ModelViewSet):
     action_serializer_class = {
         "list": ListTransactionSerializer,
         "retrieve": RetrieveTransactionSerializer,
-        "get_transaction_from_tag": RetrieveTransactionSerializer,
-        "create": CreateTransactionSerializer,
+        "get_transaction_from_tag": MiniTransactionSerializer,
         "start": CreateTransactionSerializer,
         "stop": StopTransactionSerializer,
         "clear": StopTransactionSerializer,
     }
-
-    def perform_create(self, serializer):
-        conn = serializer.validated_data.get("conn")
-        if conn is None:
-            raise ValidationError(detail={"conn": "Connector is not found"})
-        tag = generate_tag()
-        remote_start_transaction(conn.charger.cp_id, conn.conn_id, tag)
-        instance = serializer.save(start_date=timezone.now(), user=self.request.user, tag=tag)
-        ws_transaction_event(instance)
 
     @action(methods=["GET"], detail=False, url_name="tag", url_path="tag/(?P<tag>[^/.]+)")
     def get_transaction_from_tag(self, request, tag):
@@ -59,9 +50,17 @@ class TransactionView(BaseViewSetMixin, ModelViewSet):
     def start(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        conn = serializer.validated_data.get("conn")
+        if conn is None:
+            raise ValidationError(detail={"conn": "Connector is not found"})
+        tag = generate_tag()
+        instance = serializer.save(start_date=timezone.now(), user=self.request.user, tag=tag)
+        ws_transaction_event(instance)
+        resp, msg = remote_start_transaction(conn.charger.cp_id, conn.conn_id, tag)
+        resp_dict = serializer.data
+        resp_dict["status"] = resp
+        resp_dict["detail"] = msg
+        return Response(resp_dict, status=status.HTTP_200_OK if resp is True else status.HTTP_406_NOT_ACCEPTABLE)
 
     @action(methods=["POST"], detail=False, url_name="stop", url_path="stop")
     def stop(self, request, *args, **kwargs):
@@ -72,8 +71,8 @@ class TransactionView(BaseViewSetMixin, ModelViewSet):
         transaction.status = TransactionStatusEnum.PENDING.value
         transaction.save()
         ws_transaction_event(transaction)
-        remote_stop_transaction(transaction.conn.charger.cp_id, transaction.pk)
-        return Response(data={"detail": _("transaction to'xtatildi")})
+        resp, msg = remote_stop_transaction(transaction.conn.charger.cp_id, transaction.pk)
+        return Response(data={"status": resp, "detail": msg})
 
     @action(methods=["POST"], detail=False, url_name="clear", url_path="clear")
     def clear(self, request, *args, **kwargs):

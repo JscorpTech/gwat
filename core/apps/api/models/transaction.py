@@ -32,6 +32,9 @@ class TransactionModel(AbstractBaseModel):
     # last_meter oxirig yangilanishdagi Wh
     last_meter = models.DecimalField(verbose_name=_("Last meter (Wh)"), default=0, max_digits=20, decimal_places=10)
 
+    # Majburiy to'xtatilganmi
+    is_force_stop = models.BooleanField(_("IS Force stop"), default=False)
+
     start_date = models.DateTimeField()
     end_date = models.DateTimeField(null=True, blank=True)
 
@@ -40,7 +43,7 @@ class TransactionModel(AbstractBaseModel):
 
     @classmethod
     def _baker(cls):
-        return baker.make(cls)
+        return baker.make(cls, _fill_optional=True)
 
     class Meta:
         db_table = "transaction"

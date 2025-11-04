@@ -29,6 +29,7 @@ class Command(BaseCommand):
                         EventsEnum.STOP_TRANSACTION.value: ocpp_handler.stop_transaction,
                         EventsEnum.METER_VALUE.value: ocpp_handler.meter_value,
                         EventsEnum.HEALTH.value: ocpp_handler.health,
+                        EventsEnum.DATA_TRANSFER.value: ocpp_handler.data_transfer,
                     }
                     handler = handlers.get(event.event)
                     if handler is None:

@@ -120,18 +120,18 @@ def test_health(handler: OcppHandler, instance: ConnectorModel):
     handler.health(event)
 
 
-@patch("core.apps.api.services.ocpp.client")
+@patch("core.apps.api.services.ocpp.send_command")
 def test_remote_start_transaction(mock_client, transaction: TransactionModel):
-    mock_client.rpush = MagicMock()
-    remote_start_transaction(transaction.conn.charger.pk, transaction.conn.pk, transaction.tag)
-    mock_client.rpush.assert_called()
+    mock_client.return_value = {"status": "Accepted"}
+    resp, msg = remote_start_transaction(transaction.conn.charger.pk, transaction.conn.pk, transaction.tag)
+    assert resp is True
 
 
-@patch("core.apps.api.services.ocpp.client")
+@patch("core.apps.api.services.ocpp.send_command")
 def test_remote_stop_transaction(mock_client, transaction: TransactionModel):
-    mock_client.rpush = MagicMock()
-    remote_stop_transaction(transaction.conn.charger.pk, transaction.pk)
-    mock_client.rpush.assert_called()
+    mock_client.return_value = {"status": "Accepted"}
+    resp, msg = remote_stop_transaction(transaction.conn.charger.pk, transaction.pk)
+    assert resp is True
 
 
 def test_parse_meter_values(meter_value):

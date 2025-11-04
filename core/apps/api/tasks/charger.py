@@ -44,5 +44,5 @@ def check_fail_chargers():
                     conn,
                     charger,
                 )
-                stop_transaction(transaction, TransactionStatusEnum.PENDING, data)
+                stop_transaction(transaction, TransactionStatusEnum.PENDING, data, force_stop=True)
             ws_connector_event(conn)

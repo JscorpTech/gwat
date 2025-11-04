@@ -10,6 +10,7 @@ class EventsEnum(Enum):
     STOP_TRANSACTION = "stop_transaction"
     METER_VALUE = "meter_value"
     HEALTH = "health"
+    DATA_TRANSFER = "data_transfer"
 
 
 class Events(BaseModel):

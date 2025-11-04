@@ -103,8 +103,8 @@ class OcppHandler:
         if transaction.limit is not None:
             if price >= transaction.limit:
                 charger = transaction.conn.charger.cp_id
-                remote_stop_transaction(charger, transaction.pk)
-                logging.info("Limitga yetib keldi limit=%s curent_price=%s", transaction.limit, price)
+                resp = remote_stop_transaction(charger, transaction.pk)
+                logging.info("Limitga yetib keldi limit=%s curent_price=%s success=%s", transaction.limit, price, resp)
 
     def data_transfer(self, event: Events):
         """DataTransfer

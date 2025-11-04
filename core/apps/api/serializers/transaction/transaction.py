@@ -35,6 +35,16 @@ class RetrieveTransactionSerializer(BaseTransactionSerializer):
     class Meta(BaseTransactionSerializer.Meta): ...
 
 
+class MiniTransactionSerializer(BaseTransactionSerializer):
+    class Meta:
+        model = TransactionModel
+        fields = [
+            "id",
+            "status",
+            "tag",
+        ]
+
+
 class StopTransactionSerializer(serializers.Serializer):
     transaction = serializers.PrimaryKeyRelatedField(queryset=TransactionModel.objects.all())
 

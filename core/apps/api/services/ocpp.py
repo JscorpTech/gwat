@@ -1,21 +1,42 @@
 # type: ignore
 from decimal import Decimal
-import json
 import logging
 from typing import Dict, List
 from django.utils import timezone
+from pydantic import BaseModel
 import redis
 from config.env import env
 from core.apps.api.enums.transaction import TransactionStatusEnum
 from core.apps.api.models.transaction import TransactionModel
 from random import randrange
+from django.utils.translation import gettext as _
 
 from core.apps.api.schemas.events import MeterValueData, SampledValue, StopTransaction
+from core.apps.api.schemas.remote_commands import (
+    RemoteCommandStatus,
+    RemoteStartTransaction,
+    RemoteStopTransaction,
+    RemoteCommands,
+)
 from core.apps.api.services.payment import calc_energy_price
 from core.apps.api.services.ws import ws_transaction_event
+from httpx import Client
 
 
 client = redis.Redis(host=env.str("REDIS_HOST", "redis"))
+
+
+def send_command(charger_id: str, command: str, data: BaseModel) -> dict:
+    client = Client(base_url=env.str("OCPP_URL"))
+    resp = client.post(
+        "/command/",
+        json={
+            "cp_id": str(charger_id),
+            "command": command,
+            "data": data.model_dump(),
+        },
+    )
+    return resp.json()
 
 
 def generate_str(length=10):
@@ -42,7 +63,7 @@ def generate_tag(length=10) -> str:
     return tag
 
 
-def remote_start_transaction(charger_id: str, conn_id: int, tag: str):
+def remote_start_transaction(charger_id: str, conn_id: int, tag: str) -> (bool, str):
     """
     Args:
         charger_id (str): charger point id
@@ -52,27 +73,21 @@ def remote_start_transaction(charger_id: str, conn_id: int, tag: str):
         None:
     """
     logging.info("Remote command start transaction charger=%s conn=%s tag=%s", charger_id, conn_id, tag)
-    logging.info(id(client))
-    client.rpush(
-        "commands",
-        json.dumps(
-            {
-                "CpId": str(charger_id),
-                "data": [
-                    2,
-                    generate_str(36),
-                    "RemoteStartTransaction",
-                    {
-                        "idTag": tag,
-                        "connectorId": conn_id,
-                    },
-                ],
-            }
-        ),
-    )
+    try:
+        resp = send_command(
+            charger_id,
+            RemoteCommands.REMOTE_START_TRANSACTION.value,
+            RemoteStartTransaction(tag=tag, connector_id=str(conn_id)),
+        )
+        if resp.get("status") == RemoteCommandStatus.ACCEPTED.value:
+            return True, ""
+        return False, resp.get("detail")
+    except Exception as e:
+        logging.error(e)
+        return False, _("Internal server error")
 
 
-def remote_stop_transaction(charger_id: int, transaction_id: int):
+def remote_stop_transaction(charger_id: int, transaction_id: int) -> (bool, str):
     """
     Args:
         charger_id (str): charger point id
@@ -81,22 +96,18 @@ def remote_stop_transaction(charger_id: int, transaction_id: int):
         None:
     """
     logging.info("Remote command stop transaction charger=%s transaction=%s", charger_id, transaction_id)
-    client.rpush(
-        "commands",
-        json.dumps(
-            {
-                "CpId": str(charger_id),
-                "data": [
-                    2,
-                    generate_str(36),
-                    "RemoteStopTransaction",
-                    {
-                        "transactionId": transaction_id,
-                    },
-                ],
-            }
-        ),
-    )
+    try:
+        resp = send_command(
+            charger_id,
+            RemoteCommands.REMOTE_STOP_TRANSACTION.value,
+            RemoteStopTransaction(transaction_id=transaction_id),
+        )
+        if resp.get("status") == RemoteCommandStatus.ACCEPTED.value:
+            return True, ""
+        return False, resp.get("detail")
+    except Exception as e:
+        logging.error(e)
+        return False, _("Internal server error")
 
 
 def parse_meter_values(data: List[MeterValueData]) -> List[Dict[str, SampledValue]]:
@@ -136,7 +147,9 @@ def get_meter(data: Dict[str, SampledValue]) -> Decimal:
         return 0
 
 
-def stop_transaction(transaction: TransactionModel, status: TransactionStatusEnum, data: StopTransaction):
+def stop_transaction(
+    transaction: TransactionModel, status: TransactionStatusEnum, data: StopTransaction, force_stop: bool = False
+):
     """Transactionni tugatish databaseni yangilaydi va notification yuboradi
 
     Args:
@@ -153,6 +166,7 @@ def stop_transaction(transaction: TransactionModel, status: TransactionStatusEnu
         transaction.meter_consumed = transaction.meter_stop - transaction.meter_start
     transaction.end_date = timezone.now()
     transaction.amount = calc_energy_price(transaction.meter_consumed)
+    transaction.is_force_stop = force_stop
     transaction.save()
     ws_transaction_event(transaction)
     logging.info("stop transaction charger=%s transaction=%s reason=%s", data.charger, data.transaction_id, data.reason)
