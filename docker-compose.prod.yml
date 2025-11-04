@@ -29,6 +29,8 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile.web
+    env_file:
+      - .env
     restart: always
     environment:
       - PYTHONPYCACHEPREFIX=/var/cache/pycache

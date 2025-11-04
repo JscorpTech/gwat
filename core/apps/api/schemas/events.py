@@ -68,3 +68,14 @@ class MeterValue(BaseModel):
 
 class Health(BaseModel):
     charger: str
+
+
+class DataTransferValue(BaseModel):
+    vendorId: str
+    messageId: str
+    data: str
+
+
+class DataTransfer(BaseModel):
+    charger: str
+    data: DataTransferValue

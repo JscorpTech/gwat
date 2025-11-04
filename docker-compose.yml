@@ -23,6 +23,8 @@ services:
   web:
     networks:
       - gigawat
+    env_file:
+      - .env
     build:
       context: .
       dockerfile: ./docker/Dockerfile.web

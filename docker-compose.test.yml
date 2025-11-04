@@ -13,6 +13,8 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile.web
+    env_file:
+      - .env
     restart: always
     container_name: test_web
     environment:

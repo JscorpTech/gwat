@@ -7,6 +7,7 @@ from core.apps.api.schemas import Events
 
 from core.apps.api.schemas.events import (
     ChangeConnectorStatus,
+    DataTransfer,
     Health,
     MeterValue,
     StartTransaction,
@@ -104,6 +105,14 @@ class OcppHandler:
                 charger = transaction.conn.charger.cp_id
                 remote_stop_transaction(charger, transaction.pk)
                 logging.info("Limitga yetib keldi limit=%s curent_price=%s", transaction.limit, price)
+
+    def data_transfer(self, event: Events):
+        """DataTransfer
+
+        Args:
+            event: [TODO:description]
+        """
+        print(event)
 
     def health(self, event: Events):
         """qurilma activligini tekshirish
