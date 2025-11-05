@@ -36,7 +36,7 @@
    - Use docker secrets for sensitive data
    - Keep Docker images updated
 
-## O'zbekcha
+## O'zbekcha 
 
 ### Muhim xavfsizlik eslatmalari
 
