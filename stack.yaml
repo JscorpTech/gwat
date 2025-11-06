@@ -89,7 +89,7 @@ services:
         max-file: "5"
 
   web:
-    image: jscorptech/gwat:27
+    image: jscorptech/gwat:28
     env_file:
       - .env
     environment:
