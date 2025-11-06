@@ -1,9 +1,9 @@
 from django_core.mixins import BaseViewSetMixin
 from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema
-from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
+from rest_framework import status
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
@@ -72,7 +72,10 @@ class TransactionView(BaseViewSetMixin, ListModelMixin, RetrieveModelMixin, Dest
         transaction.save()
         ws_transaction_event(transaction)
         resp, msg = remote_stop_transaction(transaction.conn.charger.cp_id, transaction.pk)
-        return Response(data={"status": resp, "detail": msg})
+        return Response(
+            data={"status": resp, "detail": msg},
+            status=status.HTTP_200_OK if resp is True else status.HTTP_406_NOT_ACCEPTABLE,
+        )
 
     @action(methods=["POST"], detail=False, url_name="clear", url_path="clear")
     def clear(self, request, *args, **kwargs):
