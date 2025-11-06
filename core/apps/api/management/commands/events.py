@@ -40,7 +40,8 @@ class Command(BaseCommand):
                         continue
                     handler(event)
                 except Exception as e:
-                    logging.error("events handler event=%s error=%s", event.event, str(e))
+                    logging.error("events handler error event=%s", event.event)
+                    logging.critical(e)
         except KeyboardInterrupt:
             self.stdout.write(self.style.WARNING("event handler to'xtatildi"))
         logging.info("event handler to'xtatildi")
