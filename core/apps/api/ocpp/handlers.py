@@ -61,6 +61,7 @@ class OcppHandler:
             return
         transaction.status = TransactionStatusEnum.CHARGING.value
         transaction.is_active = True
+        transaction.meter_stop = Decimal("0.0")
         if transaction.meter_start == Decimal("0.0"):
             transaction.meter_start = data.meter_start
         transaction.save()
