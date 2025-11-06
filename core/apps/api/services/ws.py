@@ -18,7 +18,7 @@ def ws_transaction_event(transaction: TransactionModel):
         conn=conn.pk,
         meter_consumed=transaction.meter_consumed,
         price=str(transaction.amount),
-        limit=transaction.limit,
+        limit=str(transaction.limit) if transaction.limit is not None else None,
         power=conn.power,
         status=transaction.status,
     )

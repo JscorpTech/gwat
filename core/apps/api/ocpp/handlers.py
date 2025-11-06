@@ -1,5 +1,4 @@
 from decimal import Decimal
-from os import terminal_size
 from core.apps.api.enums.transaction import TransactionStatusEnum
 from django.utils import timezone
 from core.apps.api.models.station import ChargerModel, ConnectorModel
@@ -10,7 +9,6 @@ from core.apps.api.schemas import Events
 from core.apps.api.schemas.events import (
     ChangeConnectorStatus,
     ConnectCharger,
-    DataTransfer,
     DisconnectCharger,
     Health,
     MeterValue,
