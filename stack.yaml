@@ -11,6 +11,11 @@ services:
       - postgres_password
     networks:
       - gwat
+    ports:
+      - mode: ingress
+        target: 5432
+        published: 5432
+        protocol: tcp
     volumes:
       - pg_data:/var/lib/postgresql/data:rw
     deploy:
