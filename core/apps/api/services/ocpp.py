@@ -1,12 +1,14 @@
 # type: ignore
 from decimal import Decimal
 import logging
-from typing import Dict, List
+from typing import Dict, List, Optional
 from django.utils import timezone
 from pydantic import BaseModel
 import redis
 from config.env import env
+from core.apps.api.enums.connectors import ConnectorStatusEnum
 from core.apps.api.enums.transaction import TransactionStatusEnum
+from core.apps.api.models.station import ChargerModel, ConnectorModel
 from core.apps.api.models.transaction import TransactionModel
 from random import randrange
 from django.utils.translation import gettext as _
@@ -19,7 +21,7 @@ from core.apps.api.schemas.remote_commands import (
     RemoteCommands,
 )
 from core.apps.api.services.payment import calc_energy_price
-from core.apps.api.services.ws import ws_transaction_event
+from core.apps.api.services.ws import ws_connector_event, ws_transaction_event
 from httpx import Client
 
 
@@ -148,15 +150,27 @@ def get_meter(data: Dict[str, SampledValue]) -> Decimal:
 
 
 def stop_transaction(
-    transaction: TransactionModel, status: TransactionStatusEnum, data: StopTransaction, force_stop: bool = False
+    transaction: TransactionModel,
+    status: TransactionStatusEnum,
+    data: Optional[StopTransaction] = None,
+    force_stop: bool = False,
 ):
     """Transactionni tugatish databaseni yangilaydi va notification yuboradi
 
     Args:
         transaction: [TODO:description]
         status: [TODO:description]
-        data: [TODO:description]
+        data: Agar data null bo'lsa avtomatik transactiondagi malumotlardan foydalanib to'ldiriladi
+        force_stop: majburiy to'xtatilganini belgilash
     """
+    if data is None:
+        data = StopTransaction(
+            charger=transaction.conn.charger.pk,
+            transaction_id=transaction.pk,
+            reason="",
+            meter_stop=transaction.last_meter,
+        )
+
     transaction.status = status.value
     transaction.meter_stop = data.meter_stop
     if transaction.meter_stop < transaction.meter_start:
@@ -170,3 +184,35 @@ def stop_transaction(
     transaction.save()
     ws_transaction_event(transaction)
     logging.info("stop transaction charger=%s transaction=%s reason=%s", data.charger, data.transaction_id, data.reason)
+
+
+def suspend_connectors(charger: ChargerModel):
+    """Charger connectorlarini o'chirish
+
+    Args:
+        charger: [TODO:description]
+    """
+    connectors = charger.connectors.all()
+    logging.info("suspending connectors charger=%s", charger)
+    for conn in connectors:
+        conn.status = ConnectorStatusEnum.SUSPENDED_EV.value
+        conn.save()
+        transaction = connector_active_transaction(conn)
+        if transaction is not None:
+            stop_transaction(transaction, TransactionStatusEnum.PENDING, data=None, force_stop=True)
+        ws_connector_event(conn)
+
+
+def connector_active_transaction(conn: ConnectorModel) -> TransactionModel:
+    """Connectordagi active trnasaction
+
+    Args:
+        conn: [TODO:description]
+
+    Returns:
+        [TODO:description]
+    """
+    transaction = TransactionModel.objects.filter(conn=conn, is_active=True).order_by("-id").first()
+    if transaction is None:
+        return None
+    return transaction

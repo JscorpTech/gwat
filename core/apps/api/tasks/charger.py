@@ -32,17 +32,11 @@ def check_fail_chargers():
             for transaction in conn.transactions.filter(
                 status__in=[TransactionStatusEnum.CHARGING.value, TransactionStatusEnum.PENDING.value]
             ):
-                data = StopTransaction(
-                    charger=transaction.conn.charger.pk,
-                    transaction_id=transaction.pk,
-                    reason="",
-                    meter_stop=transaction.last_meter,
-                )
                 logging.info(
                     "Transaction fail transaction=%s conn=%s charger=%s",
                     transaction,
                     conn,
                     charger,
                 )
-                stop_transaction(transaction, TransactionStatusEnum.PENDING, data, force_stop=True)
+                stop_transaction(transaction, TransactionStatusEnum.PENDING, data=None, force_stop=True)
             ws_connector_event(conn)

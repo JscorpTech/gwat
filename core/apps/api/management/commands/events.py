@@ -22,6 +22,7 @@ class Command(BaseCommand):
             while True:
                 try:
                     _, message = client.blpop("events")
+                    logging.info("new event data=%s", message)
                     event = Events.model_validate_json(message)
                     handlers = {
                         EventsEnum.CHANGE_CONNECTOR_STATUS.value: ocpp_handler.change_connector_status,
@@ -30,12 +31,13 @@ class Command(BaseCommand):
                         EventsEnum.METER_VALUE.value: ocpp_handler.meter_value,
                         EventsEnum.HEALTH.value: ocpp_handler.health,
                         EventsEnum.DATA_TRANSFER.value: ocpp_handler.data_transfer,
+                        EventsEnum.CONNECT_CHARGER.value: ocpp_handler.connect_charger,
+                        EventsEnum.DISCONNECT_CHARGER.value: ocpp_handler.disconnect_charger,
                     }
                     handler = handlers.get(event.event)
                     if handler is None:
                         logging.error("handler not found event=%s", event.event)
                         continue
-                    logging.info("Event: message=%s", message)
                     handler(event)
                 except Exception as e:
                     logging.error("events handler event=%s error=%s", event.event, str(e))

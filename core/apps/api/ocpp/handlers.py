@@ -7,14 +7,22 @@ from core.apps.api.schemas import Events
 
 from core.apps.api.schemas.events import (
     ChangeConnectorStatus,
+    ConnectCharger,
     DataTransfer,
+    DisconnectCharger,
     Health,
     MeterValue,
     StartTransaction,
     StopTransaction,
 )
 from core.apps.api.services.payment import calc_energy_price
-from core.apps.api.services.ocpp import get_meter, parse_meter_values, remote_stop_transaction, stop_transaction
+from core.apps.api.services.ocpp import (
+    get_meter,
+    parse_meter_values,
+    remote_stop_transaction,
+    stop_transaction,
+    suspend_connectors,
+)
 from core.apps.api.services.ws import ws_connector_event, ws_health_event, ws_transaction_event
 
 
@@ -113,6 +121,39 @@ class OcppHandler:
             event: [TODO:description]
         """
         print(event)
+
+    def disconnect_charger(self, event: Events):
+        """Disconnect Charger
+
+        Args:
+            event: [TODO:description]
+        """
+        data = DisconnectCharger.model_validate(event.data)
+        try:
+            charger = ChargerModel.objects.get(cp_id=data.charger)
+        except ChargerModel.DoesNotExist:
+            logging.error("charger not found event=disconnect_charger charger=%s", data.charger)
+            return
+        charger.is_active = False
+        charger.save()
+        suspend_connectors(charger)
+        logging.info("disconnect charger charger=%s", charger)
+
+    def connect_charger(self, event: Events):
+        """Connect Charger
+
+        Args:
+            event: [TODO:description]
+        """
+        data = ConnectCharger.model_validate(event.data)
+        try:
+            charger = ChargerModel.objects.get(cp_id=data.charger)
+        except ChargerModel.DoesNotExist:
+            logging.error("charger not found event=connect_charger charger=%s", data.charger)
+            return
+        charger.is_active = True
+        charger.save()
+        logging.info("connect charger charger=%s", charger)
 
     def health(self, event: Events):
         """qurilma activligini tekshirish

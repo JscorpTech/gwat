@@ -6,7 +6,7 @@ from core.apps.websocket.schemas.events import WsEventsEnum
 
 
 def ws_transaction_event(transaction: TransactionModel):
-    """Transaction Websocket event
+    """Frontendga Websocket orqali eventlarni yuborish
 
     Args:
         transaction: [TODO:description]
@@ -18,7 +18,7 @@ def ws_transaction_event(transaction: TransactionModel):
         conn=conn.pk,
         meter_consumed=transaction.meter_consumed,
         price=str(transaction.amount),
-        limit=str(transaction.limit),
+        limit=transaction.limit,
         power=conn.power,
         status=transaction.status,
     )

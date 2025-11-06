@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Union
 from pydantic import BaseModel, ConfigDict
 from core.apps.api.enums import ConnectorStatusEnum
 from enum import Enum
@@ -11,6 +11,8 @@ class EventsEnum(Enum):
     METER_VALUE = "meter_value"
     HEALTH = "health"
     DATA_TRANSFER = "data_transfer"
+    DISCONNECT_CHARGER = "disconnect_charger"
+    CONNECT_CHARGER = "connect_charger"
 
 
 class Events(BaseModel):
@@ -80,3 +82,11 @@ class DataTransferValue(BaseModel):
 class DataTransfer(BaseModel):
     charger: str
     data: DataTransferValue
+
+
+class DisconnectCharger(BaseModel):
+    charger: Union[str, int]
+
+
+class ConnectCharger(BaseModel):
+    charger: Union[str, int]

@@ -10,6 +10,7 @@ class ChargerModel(AbstractBaseModel):
     name = models.CharField(_("name"))
     cp_id = models.PositiveBigIntegerField(_("CpId"), unique=True)
     last_health = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.cp_id:

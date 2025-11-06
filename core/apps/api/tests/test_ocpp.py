@@ -1,4 +1,5 @@
 import logging
+from threading import Event
 import pytest
 from unittest.mock import MagicMock, patch
 from core.apps.api.enums.connectors import ConnectorStatusEnum
@@ -8,6 +9,8 @@ from core.apps.api.models.transaction import TransactionModel
 from core.apps.api.ocpp.handlers import OcppHandler
 from core.apps.api.schemas.events import (
     ChangeConnectorStatus,
+    ConnectCharger,
+    DisconnectCharger,
     Events,
     EventsEnum,
     Health,
@@ -153,3 +156,15 @@ def test_stop_transaction(transaction: TransactionModel):
         transaction_id=transaction.pk,
     )
     stop_transaction(transaction, TransactionStatusEnum.PENDING, data)
+
+
+def test_disconnect_charger(handler: OcppHandler, transaction: TransactionModel):
+    data = DisconnectCharger(charger=transaction.conn.charger.cp_id)
+    event = Events(event=EventsEnum.DISCONNECT_CHARGER, data=data)
+    handler.disconnect_charger(event)
+
+
+def test_connect_charger(handler: OcppHandler, transaction: TransactionModel):
+    data = ConnectCharger(charger=transaction.conn.charger.cp_id)
+    event = Events(event=EventsEnum.CONNECT_CHARGER, data=data)
+    handler.connect_charger(event)

@@ -1,3 +1,4 @@
+from decimal import Decimal
 from enum import Enum
 from typing import Any, Optional, Union
 from pydantic import BaseModel, ConfigDict
@@ -27,7 +28,7 @@ class TransactionMetrics(BaseModel):
     price: str
     meter_consumed: Union[str, int]
     power: int
-    limit: Optional[Union[int, str]]
+    limit: Optional[Union[int, str, Decimal]]
     status: TransactionStatusEnum
 
     model_config = ConfigDict(use_enum_values=True)

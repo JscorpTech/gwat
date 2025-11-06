@@ -1,16 +1,15 @@
 from rest_framework import serializers
 
-from core.apps.api.enums.transaction import TransactionStatusEnum
 from core.apps.api.models import ConnectorModel
-from core.apps.api.models.transaction import TransactionModel
 from core.apps.api.serializers.transaction.transaction import RetrieveTransactionSerializer
+from core.apps.api.services.ocpp import connector_active_transaction
 
 
 class BaseConnectorSerializer(serializers.ModelSerializer):
     transaction = serializers.SerializerMethodField()
 
     def get_transaction(self, obj):
-        transaction = TransactionModel.objects.filter(conn=obj, is_active=True).order_by("-id").first()
+        transaction = connector_active_transaction(obj)
         if transaction is None:
             return None
         return RetrieveTransactionSerializer(instance=transaction).data
