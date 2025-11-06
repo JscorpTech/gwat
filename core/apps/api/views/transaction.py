@@ -55,12 +55,14 @@ class TransactionView(BaseViewSetMixin, ListModelMixin, RetrieveModelMixin, Dest
             raise ValidationError(detail={"conn": "Connector is not found"})
         tag = generate_tag()
         instance = serializer.save(start_date=timezone.now(), user=self.request.user, tag=tag)
-        ws_transaction_event(instance)
         resp, msg = remote_start_transaction(conn.charger.cp_id, conn.conn_id, tag)
-        resp_dict = serializer.data
-        resp_dict["status"] = resp
-        resp_dict["detail"] = msg
-        return Response(resp_dict, status=status.HTTP_200_OK if resp is True else status.HTTP_406_NOT_ACCEPTABLE)
+        if resp is not True:
+            instance.status = TransactionStatusEnum.FAIL.value
+            instance.is_active = False
+            instance.save()
+            return Response(data={"detail": msg, "status": resp}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        ws_transaction_event(instance)
+        return Response({"detail": msg, "status": resp, "id": instance.pk}, status=status.HTTP_200_OK)
 
     @action(methods=["POST"], detail=False, url_name="stop", url_path="stop")
     def stop(self, request, *args, **kwargs):
@@ -70,12 +72,11 @@ class TransactionView(BaseViewSetMixin, ListModelMixin, RetrieveModelMixin, Dest
         transaction = data.get("transaction")
         transaction.status = TransactionStatusEnum.PENDING.value
         transaction.save()
-        ws_transaction_event(transaction)
         resp, msg = remote_stop_transaction(transaction.conn.charger.cp_id, transaction.pk)
-        return Response(
-            data={"status": resp, "detail": msg},
-            status=status.HTTP_200_OK if resp is True else status.HTTP_406_NOT_ACCEPTABLE,
-        )
+        if resp is not True:
+            return Response(data={"detail": msg, "status": resp}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        ws_transaction_event(transaction)
+        return Response(data={"status": resp, "detail": msg}, status=status.HTTP_200_OK)
 
     @action(methods=["POST"], detail=False, url_name="clear", url_path="clear")
     def clear(self, request, *args, **kwargs):

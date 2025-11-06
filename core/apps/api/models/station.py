@@ -43,8 +43,8 @@ class ConnectorModel(AbstractBaseModel):
         return str(self.pk)
 
     @classmethod
-    def _baker(cls):
-        return baker.make(cls)
+    def _baker(cls, *args, **kwargs):
+        return baker.make(cls, *args, **kwargs)
 
     class Meta:
         db_table = "connector"

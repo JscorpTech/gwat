@@ -5,7 +5,9 @@ from django_core.models import AbstractBaseModel
 from model_bakery import baker
 from django.contrib.auth import get_user_model
 
+from core.apps.api.enums.connectors import ConnectorStatusEnum
 from core.apps.api.enums.transaction import TransactionStatusEnum
+from core.apps.api.models.station import ConnectorModel
 
 
 User = get_user_model()
@@ -43,7 +45,9 @@ class TransactionModel(AbstractBaseModel):
 
     @classmethod
     def _baker(cls):
-        return baker.make(cls, _fill_optional=True)
+        return baker.make(
+            cls, conn=ConnectorModel._baker(status=ConnectorStatusEnum.PREPARING.value), _fill_optional=True
+        )
 
     class Meta:
         db_table = "transaction"
