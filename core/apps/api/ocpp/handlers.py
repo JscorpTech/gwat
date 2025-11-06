@@ -1,3 +1,5 @@
+from decimal import Decimal
+from os import terminal_size
 from core.apps.api.enums.transaction import TransactionStatusEnum
 from django.utils import timezone
 from core.apps.api.models.station import ChargerModel, ConnectorModel
@@ -58,7 +60,9 @@ class OcppHandler:
             logging.error("Event Start Transaction not found tag=%s conn=%s", data.tag, data.conn)
             return
         transaction.status = TransactionStatusEnum.CHARGING.value
-        transaction.meter_start = data.meter_start
+        transaction.is_active = True
+        if transaction.meter_start == Decimal("0.0"):
+            transaction.meter_start = data.meter_start
         transaction.save()
         ws_transaction_event(transaction)
         logging.info("start transaction conn=%s tag=%s", data.conn, data.tag)
