@@ -9,7 +9,7 @@ from core.apps.api.tasks.charger import check_fail_chargers
 
 
 @pytest.fixture
-def instance(db):
+def instance(db, tenant_context_fixture):
     instance = TransactionModel._baker()
     instance.conn.status = ConnectorStatusEnum.CHARGING.value
     instance.conn.save()

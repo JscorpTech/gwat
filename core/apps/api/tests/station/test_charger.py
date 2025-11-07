@@ -1,25 +1,23 @@
 import pytest
 from django.urls import reverse
-from rest_framework.test import APIClient
 
 from core.apps.api.models import ChargerModel
 
 
 @pytest.fixture
-def instance(db):
+def instance(db, tenant_context_fixture):
     return ChargerModel._baker()
 
 
 @pytest.fixture
-def api_client(instance):
-    client = APIClient()
-    ##client.force_authenticate(user=instance.user)
-    return client, instance
+def charger_api_client(instance, api_client):
+    # api_client comes from conftest.py
+    return api_client, instance
 
 
 @pytest.fixture
-def data(api_client):
-    client, instance = api_client
+def data(charger_api_client):
+    client, instance = charger_api_client
     return (
         {
             "list": reverse("charger-list"),

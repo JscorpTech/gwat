@@ -5,7 +5,7 @@ import pytest
 
 
 @pytest.fixture
-def instance(db):
+def instance(db, tenant_context_fixture):
     return TransactionModel._baker()
 
 

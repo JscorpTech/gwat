@@ -3,21 +3,20 @@ from os import path
 import pytest
 from unittest.mock import patch
 from django.urls import reverse
-from rest_framework.test import APIClient
 
 from core.apps.api.models import TransactionModel
 
 
 @pytest.fixture
-def instance(db):
+def instance(db, tenant_context_fixture):
     return TransactionModel._baker()
 
 
 @pytest.fixture
-def api_client(instance):
-    client = APIClient()
-    client.force_authenticate(user=instance.user)
-    return client, instance
+def transaction_api_client(instance, api_client):
+    # api_client comes from conftest.py, we need to authenticate
+    api_client.force_authenticate(user=instance.user)
+    return api_client, instance
 
 
 @pytest.fixture(autouse=True)
@@ -31,8 +30,8 @@ def mock_data():
 
 
 @pytest.fixture
-def data(api_client):
-    client, instance = api_client
+def data(transaction_api_client):
+    client, instance = transaction_api_client
     return (
         {
             "list": reverse("transaction-list"),

@@ -7,17 +7,17 @@ from core.apps.api.services.ws import ws_connector_event, ws_health_event, ws_tr
 
 
 @pytest.fixture
-def instance(db):
+def instance(db, tenant_context_fixture):
     return TransactionModel._baker()
 
 
 @pytest.fixture
-def charger(db):
+def charger(db, tenant_context_fixture):
     return ChargerModel._baker()
 
 
 @pytest.fixture
-def conn(db):
+def conn(db, tenant_context_fixture):
     return ConnectorModel._baker()
 
 

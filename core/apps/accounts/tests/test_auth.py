@@ -8,7 +8,6 @@ from django.urls import reverse
 from django_core.models import SmsConfirm
 from pydantic import BaseModel
 from rest_framework import status
-from rest_framework.test import APIClient
 
 
 class TokenModel(BaseModel):
@@ -17,12 +16,7 @@ class TokenModel(BaseModel):
 
 
 @pytest.fixture
-def api_client():
-    return APIClient()
-
-
-@pytest.fixture
-def test_user(db):
+def test_user(db, tenant_context_fixture):
     phone = "998999999999"
     password = "password"
     user = get_user_model().objects.create_user(phone=phone, first_name="John", last_name="Doe", password=password)
@@ -37,7 +31,7 @@ def sms_code(test_user):
 
 
 @pytest.mark.django_db
-def test_reg_view(api_client):
+def test_reg_view(api_client, tenant_context_fixture):
     data = {
         "phone": "998999999991",
         "first_name": "John",

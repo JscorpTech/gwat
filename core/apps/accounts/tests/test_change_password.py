@@ -3,16 +3,10 @@ from core.apps.accounts.serializers import ChangePasswordSerializer
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIClient
 
 
 @pytest.fixture
-def api_client():
-    return APIClient()
-
-
-@pytest.fixture
-def test_user(db):
+def test_user(db, tenant_context_fixture):
     phone = "9981111111"
     password = "12345670"
     user = get_user_model().objects.create_user(phone=phone, password=password, email="test@example.com")

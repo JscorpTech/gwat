@@ -42,13 +42,13 @@ def handler():
 
 
 @pytest.fixture
-def instance(db):
+def instance(db, tenant_context_fixture):
     instance = ConnectorModel._baker()
     return instance
 
 
 @pytest.fixture
-def meter_value(transaction: TransactionModel):
+def meter_value(transaction: TransactionModel, tenant_context_fixture):
     return (
         MeterValue(
             conn=transaction.conn.pk,
@@ -75,7 +75,7 @@ def meter_value(transaction: TransactionModel):
 
 
 @pytest.fixture
-def transaction(db):
+def transaction(db, tenant_context_fixture):
     instance = TransactionModel._baker()
     return instance
 
