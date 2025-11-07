@@ -1,5 +1,6 @@
-from django.db import models
-from django_tenants.models import TenantMixin, DomainMixin
+from django.db import models, connections
+from django_tenants.models import TenantMixin, DomainMixin, post_schema_sync, schema_needs_to_be_sync
+from django_tenants.utils import get_tenant_database_alias, schema_exists
 
 
 class Client(TenantMixin):

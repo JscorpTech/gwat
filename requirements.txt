@@ -42,7 +42,7 @@ django-silk
 django-storages
 boto3
 httpx
-django-tenants
+git+https://github.com/JscorpTech/django-tenants.git@master
 
 
 # !NOTE: on-websocket

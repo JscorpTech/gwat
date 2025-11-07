@@ -38,3 +38,6 @@ TENANT_APPS = [
     "django.contrib.staticfiles",
     "core.apps.shared",
 ]
+
+
+TENANT_ADMIN_SCHEMA = "admin"
