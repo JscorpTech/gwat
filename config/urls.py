@@ -14,7 +14,7 @@ from config.env import env
 
 
 def home(request):
-    return HttpResponse("OK: #d260db14cb5fc88f2e32eb0e931851b92da000be")
+    return HttpResponse("OK: #b9bd81ef3d9a47335102a9e07096ce8168aae0ce")
 
 
 urlpatterns = [
