@@ -26,8 +26,6 @@ pytest-django
 requests
 model_bakery
 
-
-
 django-modeltranslation~=0.19.11
 django-ckeditor-5==0.2.15
 channels==4.2.0
@@ -37,7 +35,6 @@ django-silk
 
 # !NOTE: on-server
 # gunicorn
-
 
 django-storages
 boto3
