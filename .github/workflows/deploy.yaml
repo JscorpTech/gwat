@@ -73,6 +73,7 @@ jobs:
             -e REDIS_URL=redis://localhost:6379 \
             -e DB_PASSWORD=postgres \
             -e DJANGO_SETTINGS_MODULE=config.settings.test \
+            -e DB_ENGINE=django_tenants.postgresql_backend \
             ${{ env.PROJECT_NAME }}:test \
             sh -c "python manage.py migrate && pytest -v"
 
@@ -154,7 +155,8 @@ jobs:
               "DB_NAME=gwat" \
               "ALLOWED_HOSTS=127.0.0.1,web,api.dwatt.uz" \
               "CSRF_TRUSTED_ORIGINS=http://127.0.0.1:8081,https://api.dwatt.uz" \
-              "OCPP_URL=https://ocpp.dwatt.uz"
+              "OCPP_URL=https://ocpp.dwatt.uz" \
+              "DB_ENGINE=django_tenants.postgresql_backend"
 
             export PORT=8080
             docker stack deploy -c stack.yaml ${{ env.PROJECT_NAME }}
