@@ -22,8 +22,6 @@ SHARED_APPS = (
     "django_filters",
     "django_redis",
     "rest_framework_simplejwt",
-    #
-    "core.apps.shared",
 )
 TENANT_APPS = [
     "core.apps.accounts",
@@ -38,4 +36,5 @@ TENANT_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "core.apps.shared",
 ]
