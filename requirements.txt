@@ -42,6 +42,7 @@ django-silk
 django-storages
 boto3
 httpx
+django-tenants
 
 
 # !NOTE: on-websocket

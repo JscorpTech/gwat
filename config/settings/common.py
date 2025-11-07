@@ -1,11 +1,9 @@
-#type: ignore
+# type: ignore
 import os
 import pathlib
 from typing import List, Union
 
 from config.conf import *  # noqa
-from config.conf.apps import APPS
-from config.conf.modules import MODULES
 from config.env import env
 from django.utils.translation import gettext_lazy as _
 from rich.traceback import install
@@ -36,27 +34,11 @@ PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.BCryptPasswordHasher",
 ]
 
-INSTALLED_APPS = [
-    "modeltranslation",
-    "unfold",
-    "unfold.contrib.filters",
-    "unfold.contrib.forms",
-    "unfold.contrib.guardian",
-    "unfold.contrib.simple_history",
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-] + APPS
+INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
 
-MODULES = [app for app in MODULES if isinstance(app, str)]
-
-for module_path in MODULES:
-    INSTALLED_APPS.append("{}.apps.ModuleConfig".format(module_path))
 
 MIDDLEWARE = [
+    "django_tenants.middleware.main.TenantMainMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",  # Cors middleware

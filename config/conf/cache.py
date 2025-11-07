@@ -5,6 +5,8 @@ CACHES = {
         "BACKEND": env.str("CACHE_BACKEND"),
         "LOCATION": env.str("REDIS_URL"),
         "TIMEOUT": env.str("CACHE_TIMEOUT"),
+        "KEY_FUNCTION": "django_tenants.cache.make_key",
+        "REVERSE_KEY_FUNCTION": "django_tenants.cache.reverse_key",
     },
 }
 
