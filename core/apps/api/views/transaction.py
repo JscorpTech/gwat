@@ -39,6 +39,25 @@ class TransactionView(BaseViewSetMixin, ListModelMixin, RetrieveModelMixin, Dest
         "stop": StopTransactionSerializer,
         "clear": StopTransactionSerializer,
     }
+    
+    def get_queryset(self):
+        """API user faqat o'z stationidagi transactionlarni ko'radi"""
+        queryset = super().get_queryset()
+        user = self.request.user
+        
+        # get_transaction_from_tag action uchun AllowAny permission
+        if self.action == 'get_transaction_from_tag':
+            return queryset
+        
+        if user.is_authenticated:
+            if user.is_superuser or not user.station:
+                # Superuser yoki station bog'lanmagan userlar hamma transactionlarni ko'radi
+                return queryset
+            
+            # Oddiy user faqat o'z stationidagi transactionlarni ko'radi
+            return queryset.filter(conn__charger__station=user.station)
+        
+        return queryset.none()
 
     @action(methods=["GET"], detail=False, url_name="tag", url_path="tag/(?P<tag>[^/.]+)")
     def get_transaction_from_tag(self, request, tag):
@@ -53,6 +72,13 @@ class TransactionView(BaseViewSetMixin, ListModelMixin, RetrieveModelMixin, Dest
         conn = serializer.validated_data.get("conn")
         if conn is None:
             raise ValidationError(detail={"conn": "Connector is not found"})
+        
+        # User faqat o'z stationidagi connector orqali transaction boshlashi mumkin
+        user = request.user
+        if not user.is_superuser and user.station:
+            if conn.charger.station != user.station:
+                raise ValidationError(detail={"conn": "You don't have permission to start transaction on this connector"})
+        
         tag = generate_tag()
         instance = serializer.save(start_date=timezone.now(), user=self.request.user, tag=tag)
         resp, msg = remote_start_transaction(conn.charger.cp_id, conn.conn_id, tag)
@@ -70,6 +96,13 @@ class TransactionView(BaseViewSetMixin, ListModelMixin, RetrieveModelMixin, Dest
         ser.is_valid(raise_exception=True)
         data = ser.validated_data
         transaction = data.get("transaction")
+        
+        # User faqat o'z stationidagi transactionni to'xtata oladi
+        user = request.user
+        if not user.is_superuser and user.station:
+            if transaction.conn.charger.station != user.station:
+                raise ValidationError(detail={"transaction": "You don't have permission to stop this transaction"})
+        
         transaction.status = TransactionStatusEnum.PENDING.value
         transaction.save()
         resp, msg = remote_stop_transaction(transaction.conn.charger.cp_id, transaction.pk)
@@ -84,6 +117,13 @@ class TransactionView(BaseViewSetMixin, ListModelMixin, RetrieveModelMixin, Dest
         ser.is_valid(raise_exception=True)
         data = ser.validated_data
         transaction = data.get("transaction")
+        
+        # User faqat o'z stationidagi transactionni clear qila oladi
+        user = request.user
+        if not user.is_superuser and user.station:
+            if transaction.conn.charger.station != user.station:
+                raise ValidationError(detail={"transaction": "You don't have permission to clear this transaction"})
+        
         transaction.status = TransactionStatusEnum.COMPLATE.value
         transaction.is_active = False
         transaction.save()
