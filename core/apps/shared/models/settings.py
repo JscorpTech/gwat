@@ -31,7 +31,7 @@ class OptionsModel(models.Model):
         verbose_name_plural = _("Options")
 
 
-class PriceRange(models.Model):
+class PriceRangeModel(models.Model):
     price = models.DecimalField(max_digits=20, decimal_places=2)
     start = models.TimeField()
     stop = models.TimeField()

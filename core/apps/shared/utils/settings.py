@@ -3,7 +3,7 @@ import logging
 from core.apps.shared.models import OptionsModel
 from typing import Optional
 from django.utils.translation import gettext_lazy as _
-from core.apps.shared.models import PriceRange
+from core.apps.shared.models import PriceRangeModel
 from django.utils import timezone
 
 
@@ -23,7 +23,7 @@ def get_exchange_rate():
 
 def energy_price() -> Decimal:
     now = timezone.now()
-    price = PriceRange.objects.filter(start__lte=now, stop__gte=now).first()
+    price = PriceRangeModel.objects.filter(start__lte=now, stop__gte=now).first()
     if price is not None:
         return price.price
     price = get_config("energy", "price", [0.0])

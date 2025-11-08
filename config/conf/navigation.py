@@ -52,6 +52,16 @@ PAGES = [
                 "icon": "receipt_long",
                 "link": reverse_lazy("admin:api_transactionmodel_changelist"),
             },
+            {
+                "title": _("Sozlamalar"),
+                "icon": "receipt_long",
+                "link": reverse_lazy("admin:shared_settingsmodel_changelist"),
+            },
+            {
+                "title": _("Price"),
+                "icon": "receipt_long",
+                "link": reverse_lazy("admin:shared_pricerangemodel_changelist"),
+            },
         ],
     },
 ]
