@@ -1,11 +1,11 @@
 from core.apps.api.models.station import ChargerModel, ConnectorModel
 from core.apps.api.models.transaction import TransactionModel
 from core.apps.websocket.schemas.events import ConnectorStatus, Health, TransactionMetrics, WsEvents
-from core.apps.websocket.services.services import send_event
+from core.apps.websocket.services.services import get_group_name, send_event
 from core.apps.websocket.schemas.events import WsEventsEnum
 
 
-def ws_transaction_event(transaction: TransactionModel):
+def ws_transaction_event(transaction: TransactionModel, host: str):
     """Frontendga Websocket orqali eventlarni yuborish
 
     Args:
@@ -24,10 +24,10 @@ def ws_transaction_event(transaction: TransactionModel):
     )
     payload = WsEvents(event=WsEventsEnum.TRANSACTION_METRICS, data=metrics)
 
-    send_event("charger_events", payload.model_dump())
+    send_event(get_group_name(host, conn.charger.station), payload.model_dump())
 
 
-def ws_health_event(charger: ChargerModel):
+def ws_health_event(charger: ChargerModel, host: str):
     """Health event
 
     Args:
@@ -38,10 +38,10 @@ def ws_health_event(charger: ChargerModel):
         last_health=charger.last_health.isoformat() if charger.last_health is not None else "",
     )
     payload = WsEvents(event=WsEventsEnum.HEALTH, data=data)
-    send_event("charger_events", payload.model_dump())
+    send_event(get_group_name(host, charger.station), payload.model_dump())
 
 
-def ws_connector_event(conn: ConnectorModel):
+def ws_connector_event(conn: ConnectorModel, host: str):
     """Websocket orqali conn statusi haqida event yuboradi
 
     Args:
@@ -54,4 +54,4 @@ def ws_connector_event(conn: ConnectorModel):
     )
     payload = WsEvents(event=WsEventsEnum.CONNECTOR_STATUS, data=data)
 
-    send_event("charger_events", payload.model_dump())
+    send_event(get_group_name(host, conn.charger.station), payload.model_dump())

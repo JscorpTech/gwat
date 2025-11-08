@@ -28,12 +28,12 @@ def mock_send_event():
 
 
 def test_ws_transaction_event(instance: TransactionModel):
-    ws_transaction_event(instance)
+    ws_transaction_event(instance, "test.localhost")
 
 
 def test_ws_health_event(charger: ChargerModel):
-    ws_health_event(charger)
+    ws_health_event(charger, "test.localhost")
 
 
 def test_ws_connector_event(conn):
-    ws_connector_event(conn)
+    ws_connector_event(conn, "test.localhost")

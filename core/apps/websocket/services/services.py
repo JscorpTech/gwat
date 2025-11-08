@@ -13,3 +13,7 @@ def send_event(group: str, data: dict[str, Any]):
     """
     logging.info("method: send_event event group=%s data=%s", group, data)
     return async_to_sync(get_channel_layer().group_send)(group, {"data": data, "type": "chat_message"})  # type: ignore
+
+
+def get_group_name(host: str, station) -> str:
+    return "charger_events_%s_%s" % (host, station.pk)

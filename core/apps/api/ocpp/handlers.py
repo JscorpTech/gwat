@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Optional
 from core.apps.api.enums.transaction import TransactionStatusEnum
 from django.utils import timezone
 from core.apps.api.models.station import ChargerModel, ConnectorModel
@@ -28,7 +29,7 @@ from core.apps.api.services.ws import ws_connector_event, ws_health_event, ws_tr
 
 class OcppHandler:
 
-    def change_connector_status(self, event: Events):
+    def change_connector_status(self, event: Events, host: str):
         """
         Args:
             event (Evens):
@@ -42,10 +43,10 @@ class OcppHandler:
             return
         conn.status = data.status
         conn.save()
-        ws_connector_event(conn)
+        ws_connector_event(conn, host)
         logging.info("conn status updated conn=%s status=%s", conn.pk, conn.status)
 
-    def start_transaction(self, event: Events):
+    def start_transaction(self, event: Events, host: str):
         """
         Args:
             event (Events):
@@ -64,10 +65,10 @@ class OcppHandler:
         if transaction.meter_start == Decimal("0.0"):
             transaction.meter_start = data.meter_start
         transaction.save()
-        ws_transaction_event(transaction)
+        ws_transaction_event(transaction, host)
         logging.info("start transaction conn=%s tag=%s", data.conn, data.tag)
 
-    def stop_transaction(self, event: Events):
+    def stop_transaction(self, event: Events, host: str):
         """
         Args:
             event (Evens):
@@ -82,9 +83,9 @@ class OcppHandler:
         # INFO: stop_transaction: transactionni yakunlash va notification yuborish
         # boshqa joylarda ham kerak bo'lgani uchun alohida ko'chirilgan
         # boshqa eventlar handler ichida faqat stop_transaction alohida
-        stop_transaction(transaction, TransactionStatusEnum.COMPLATE, data)
+        stop_transaction(transaction, TransactionStatusEnum.COMPLATE, host, data)
 
-    def meter_value(self, event: Events):
+    def meter_value(self, event: Events, host: str):
         """
         Args:
             event (Events):
@@ -110,7 +111,7 @@ class OcppHandler:
         transaction.meter_consumed = meter_consumed
         transaction.last_meter = meter_current
         transaction.save()
-        ws_transaction_event(transaction)
+        ws_transaction_event(transaction, host)
 
         if transaction.limit is not None:
             if price >= transaction.limit:
@@ -118,7 +119,7 @@ class OcppHandler:
                 resp = remote_stop_transaction(charger, transaction.pk)
                 logging.info("Limitga yetib keldi limit=%s curent_price=%s success=%s", transaction.limit, price, resp)
 
-    def data_transfer(self, event: Events):
+    def data_transfer(self, event: Events, host: Optional[str] = None):
         """DataTransfer
 
         Args:
@@ -126,7 +127,7 @@ class OcppHandler:
         """
         print(event)
 
-    def disconnect_charger(self, event: Events):
+    def disconnect_charger(self, event: Events, host: str):
         """Disconnect Charger
 
         Args:
@@ -140,10 +141,10 @@ class OcppHandler:
             return
         charger.is_active = False
         charger.save()
-        suspend_connectors(charger)
+        suspend_connectors(charger, host)
         logging.info("disconnect charger charger=%s", charger)
 
-    def connect_charger(self, event: Events):
+    def connect_charger(self, event: Events, host: Optional[str] = None):
         """Connect Charger
 
         Args:
@@ -159,7 +160,7 @@ class OcppHandler:
         charger.save()
         logging.info("connect charger charger=%s", charger)
 
-    def health(self, event: Events):
+    def health(self, event: Events, host: str):
         """qurilma activligini tekshirish
 
         Args:
@@ -173,5 +174,5 @@ class OcppHandler:
         date = timezone.now()
         charger.last_health = date
         charger.save()
-        ws_health_event(charger)
+        ws_health_event(charger, host)
         logging.info("charger health charger=%s date=%s", charger, date)

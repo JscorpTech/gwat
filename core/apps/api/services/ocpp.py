@@ -152,6 +152,7 @@ def get_meter(data: Dict[str, SampledValue]) -> Decimal:
 def stop_transaction(
     transaction: TransactionModel,
     status: TransactionStatusEnum,
+    host: str,
     data: Optional[StopTransaction] = None,
     force_stop: bool = False,
 ):
@@ -182,11 +183,11 @@ def stop_transaction(
     transaction.amount = calc_energy_price(transaction.meter_consumed)
     transaction.is_force_stop = force_stop
     transaction.save()
-    ws_transaction_event(transaction)
+    ws_transaction_event(transaction, host)
     logging.info("stop transaction charger=%s transaction=%s reason=%s", data.charger, data.transaction_id, data.reason)
 
 
-def suspend_connectors(charger: ChargerModel):
+def suspend_connectors(charger: ChargerModel, host: str):
     """Charger connectorlarini o'chirish
 
     Args:
@@ -199,8 +200,8 @@ def suspend_connectors(charger: ChargerModel):
         conn.save()
         transaction = connector_active_transaction(conn)
         if transaction is not None:
-            stop_transaction(transaction, TransactionStatusEnum.PENDING, data=None, force_stop=True)
-        ws_connector_event(conn)
+            stop_transaction(transaction, TransactionStatusEnum.PENDING, host=host, data=None, force_stop=True)
+        ws_connector_event(conn, host)
 
 
 def connector_active_transaction(conn: ConnectorModel) -> TransactionModel:

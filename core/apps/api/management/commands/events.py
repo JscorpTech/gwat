@@ -42,9 +42,9 @@ class Command(BaseCommand):
                         tenant = Domain.objects.get(domain=event.domain).tenant
                     except Domain.DoesNotExist:
                         logging.error("Tenant not found domain=%s", event.domain)
-                        return
+                        continue
                     with tenant_context(tenant):
-                        handler(event)
+                        handler(event, event.domain)
                 except Exception as e:
                     logging.error("events handler error event=%s", event.event)
                     logging.critical(e)
