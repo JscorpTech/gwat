@@ -30,7 +30,7 @@ from core.apps.api.services.ocpp import (
 )
 
 
-@pytest.fixture(autouse=True, scope="module")
+@pytest.fixture(scope="module")
 def send_event_patch():
     with patch("core.apps.api.services.ws.send_event") as mock_event:
         yield mock_event
@@ -80,7 +80,7 @@ def transaction(db, tenant_context_fixture):
     return instance
 
 
-def test_chage_status(handler: OcppHandler, instance: ConnectorModel):
+def test_change_status(handler: OcppHandler, instance: ConnectorModel, send_event_patch):
     data = ChangeConnectorStatus(
         charger=instance.charger.cp_id,
         conn=instance.conn_id,
@@ -88,9 +88,10 @@ def test_chage_status(handler: OcppHandler, instance: ConnectorModel):
     )
     event = Events(event=EventsEnum.CHANGE_CONNECTOR_STATUS, data=data, domain="test.localhost")
     handler.change_connector_status(event)
+    send_event_patch.assert_called()
 
 
-def test_start_transaction_event(handler: OcppHandler, transaction: TransactionModel):
+def test_start_transaction_event(handler: OcppHandler, transaction: TransactionModel, send_event_patch):
     data = StartTransaction(
         charger=transaction.conn.charger.cp_id,
         conn=transaction.conn.conn_id,
@@ -99,9 +100,10 @@ def test_start_transaction_event(handler: OcppHandler, transaction: TransactionM
     )
     event = Events(event=EventsEnum.START_TRANSACTION, data=data, domain="test.localhost")
     handler.start_transaction(event)
+    send_event_patch.assert_called()
 
 
-def test_stop_transaction_event(handler: OcppHandler, transaction: TransactionModel):
+def test_stop_transaction_event(handler: OcppHandler, transaction: TransactionModel, send_event_patch):
     data = StopTransaction(
         charger=transaction.conn.charger.cp_id,
         meter_stop=transaction.meter_stop,
@@ -109,32 +111,37 @@ def test_stop_transaction_event(handler: OcppHandler, transaction: TransactionMo
     )
     event = Events(event=EventsEnum.STOP_TRANSACTION, data=data, domain="test.localhost")
     handler.stop_transaction(event)
+    send_event_patch.assert_called()
 
 
-def test_meter_value(handler: OcppHandler, meter_value):
+def test_meter_value(handler: OcppHandler, meter_value, send_event_patch):
     data, _ = meter_value
     event = Events(event=EventsEnum.STOP_TRANSACTION, data=data, domain="test.localhost")
     handler.meter_value(event)
+    send_event_patch.assert_called()
 
 
-def test_health(handler: OcppHandler, instance: ConnectorModel):
+def test_health(handler: OcppHandler, instance: ConnectorModel, send_event_patch):
     data = Health(charger=str(instance.charger.cp_id))
     event = Events(event=EventsEnum.HEALTH, data=data, domain="test.localhost")
     handler.health(event)
+    send_event_patch.assert_called()
 
 
 @patch("core.apps.api.services.ocpp.send_command")
-def test_remote_start_transaction(mock_client, transaction: TransactionModel):
-    mock_client.return_value = {"status": "Accepted"}
+def test_remote_start_transaction(mock_send_command, transaction: TransactionModel):
+    mock_send_command.return_value = {"status": "Accepted"}
     resp, msg = remote_start_transaction(transaction.conn.charger.pk, transaction.conn.pk, transaction.tag)
     assert resp is True
+    mock_send_command.assert_called()
 
 
 @patch("core.apps.api.services.ocpp.send_command")
-def test_remote_stop_transaction(mock_client, transaction: TransactionModel):
-    mock_client.return_value = {"status": "Accepted"}
+def test_remote_stop_transaction(mock_send_command, transaction: TransactionModel):
+    mock_send_command.return_value = {"status": "Accepted"}
     resp, msg = remote_stop_transaction(transaction.conn.charger.pk, transaction.pk)
     assert resp is True
+    mock_send_command.assert_called()
 
 
 def test_parse_meter_values(meter_value):
@@ -158,13 +165,15 @@ def test_stop_transaction(transaction: TransactionModel):
     stop_transaction(transaction, TransactionStatusEnum.PENDING, data)
 
 
-def test_disconnect_charger(handler: OcppHandler, transaction: TransactionModel):
+def test_disconnect_charger(handler: OcppHandler, transaction: TransactionModel, send_event_patch):
     data = DisconnectCharger(charger=transaction.conn.charger.cp_id)
     event = Events(event=EventsEnum.DISCONNECT_CHARGER, data=data, domain="test.localhost")
     handler.disconnect_charger(event)
+    send_event_patch.assert_called()
 
 
-def test_connect_charger(handler: OcppHandler, transaction: TransactionModel):
+def test_connect_charger(handler: OcppHandler, transaction: TransactionModel, send_event_patch):
     data = ConnectCharger(charger=transaction.conn.charger.cp_id)
     event = Events(event=EventsEnum.CONNECT_CHARGER, data=data, domain="test.localhost")
     handler.connect_charger(event)
+    send_event_patch.assert_called()
