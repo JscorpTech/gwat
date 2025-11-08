@@ -13,7 +13,7 @@ def environment_callback(request):
 
 
 UNFOLD = {
-    "DASHBOARD_CALLBACK": "django_core.views.dashboard_callback",
+    "DASHBOARD_CALLBACK": "config.dashboard.dashboard_callback",
     "SITE_TITLE": "Django",
     "SITE_HEADER": "Django",
     "SITE_URL": "/",
