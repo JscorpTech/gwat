@@ -131,7 +131,9 @@ def test_health(handler: OcppHandler, instance: ConnectorModel, send_event_patch
 @patch("core.apps.api.services.ocpp.send_command")
 def test_remote_start_transaction(mock_send_command, transaction: TransactionModel):
     mock_send_command.return_value = {"status": "Accepted"}
-    resp, msg = remote_start_transaction(transaction.conn.charger.pk, transaction.conn.pk, transaction.tag)
+    resp, msg = remote_start_transaction(
+        "test.localhost", transaction.conn.charger.pk, transaction.conn.pk, transaction.tag
+    )
     assert resp is True
     mock_send_command.assert_called()
 
@@ -139,7 +141,7 @@ def test_remote_start_transaction(mock_send_command, transaction: TransactionMod
 @patch("core.apps.api.services.ocpp.send_command")
 def test_remote_stop_transaction(mock_send_command, transaction: TransactionModel):
     mock_send_command.return_value = {"status": "Accepted"}
-    resp, msg = remote_stop_transaction(transaction.conn.charger.pk, transaction.pk)
+    resp, msg = remote_stop_transaction("test.localhost", transaction.conn.charger.pk, transaction.pk)
     assert resp is True
     mock_send_command.assert_called()
 
