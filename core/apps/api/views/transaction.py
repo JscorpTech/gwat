@@ -1,3 +1,4 @@
+from urllib.parse import urlsplit
 from django_core.mixins import BaseViewSetMixin
 from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema
@@ -62,6 +63,7 @@ class TransactionView(BaseViewSetMixin, ListModelMixin, RetrieveModelMixin, Dest
     def start(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        host = urlsplit(f"//{request.get_host()}").hostname
         conn = serializer.validated_data.get("conn")
         if conn is None:
             raise ValidationError(detail={"conn": "Connector is not found"})
@@ -76,19 +78,20 @@ class TransactionView(BaseViewSetMixin, ListModelMixin, RetrieveModelMixin, Dest
 
         tag = generate_tag()
         instance = serializer.save(start_date=timezone.now(), user=self.request.user, tag=tag)
-        resp, msg = remote_start_transaction(conn.charger.cp_id, conn.conn_id, tag)
+        resp, msg = remote_start_transaction(host, conn.charger.cp_id, conn.conn_id, tag)
         if resp is not True:
             instance.status = TransactionStatusEnum.FAIL.value
             instance.is_active = False
             instance.save()
             return Response(data={"detail": msg, "status": resp}, status=status.HTTP_406_NOT_ACCEPTABLE)
-        ws_transaction_event(instance, request.get_host().split(":")[0])
+        ws_transaction_event(instance, host)
         return Response({"detail": msg, "status": resp, "id": instance.pk}, status=status.HTTP_200_OK)
 
     @action(methods=["POST"], detail=False, url_name="stop", url_path="stop")
     def stop(self, request, *args, **kwargs):
         ser = self.get_serializer(data=request.data)
         ser.is_valid(raise_exception=True)
+        host = urlsplit(f"//{request.get_host()}").hostname
         data = ser.validated_data
         transaction = data.get("transaction")
 
@@ -100,10 +103,10 @@ class TransactionView(BaseViewSetMixin, ListModelMixin, RetrieveModelMixin, Dest
 
         transaction.status = TransactionStatusEnum.PENDING.value
         transaction.save()
-        resp, msg = remote_stop_transaction(transaction.conn.charger.cp_id, transaction.pk)
+        resp, msg = remote_stop_transaction(host, transaction.conn.charger.cp_id, transaction.pk)
         if resp is not True:
             return Response(data={"detail": msg, "status": resp}, status=status.HTTP_406_NOT_ACCEPTABLE)
-        ws_transaction_event(transaction, request.get_host().split(":")[0])
+        ws_transaction_event(transaction, host)
         return Response(data={"status": resp, "detail": msg}, status=status.HTTP_200_OK)
 
     @action(methods=["POST"], detail=False, url_name="clear", url_path="clear")

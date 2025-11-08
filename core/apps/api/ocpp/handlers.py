@@ -19,6 +19,7 @@ from core.apps.api.schemas.events import (
 from core.apps.api.services.payment import calc_energy_price
 from core.apps.api.services.ocpp import (
     get_meter,
+    parse_charger_id,
     parse_meter_values,
     remote_stop_transaction,
     stop_transaction,
@@ -37,9 +38,9 @@ class OcppHandler:
             None:
         """
         data = ChangeConnectorStatus.model_validate(event.data)
-        conn = ConnectorModel.objects.filter(conn_id=data.conn, charger__cp_id=data.charger).first()
+        conn = ConnectorModel.objects.filter(conn_id=data.conn, charger__cp_id=parse_charger_id(data.charger)).first()
         if conn is None:
-            logging.error("conn not found conn=%s charger=%s", data.conn, data.charger)
+            logging.error("conn not found conn=%s charger=%s", data.conn, parse_charger_id(data.charger))
             return
         conn.status = data.status
         conn.save()
@@ -135,9 +136,9 @@ class OcppHandler:
         """
         data = DisconnectCharger.model_validate(event.data)
         try:
-            charger = ChargerModel.objects.get(cp_id=data.charger)
+            charger = ChargerModel.objects.get(cp_id=parse_charger_id(data.charger))
         except ChargerModel.DoesNotExist:
-            logging.error("charger not found event=disconnect_charger charger=%s", data.charger)
+            logging.error("charger not found event=disconnect_charger charger=%s", parse_charger_id(data.charger))
             return
         charger.is_active = False
         charger.save()
@@ -152,9 +153,9 @@ class OcppHandler:
         """
         data = ConnectCharger.model_validate(event.data)
         try:
-            charger = ChargerModel.objects.get(cp_id=data.charger)
+            charger = ChargerModel.objects.get(cp_id=parse_charger_id(data.charger))
         except ChargerModel.DoesNotExist:
-            logging.error("charger not found event=connect_charger charger=%s", data.charger)
+            logging.error("charger not found event=connect_charger charger=%s", parse_charger_id(data.charger))
             return
         charger.is_active = True
         charger.save()
@@ -167,7 +168,7 @@ class OcppHandler:
             event: [TODO:description]
         """
         data = Health.model_validate(event.data)
-        charger = ChargerModel.objects.filter(cp_id=data.charger).first()
+        charger = ChargerModel.objects.filter(cp_id=parse_charger_id(data.charger)).first()
         if charger is None:
             logging.error("health charger not found charger=%s", charger)
             return

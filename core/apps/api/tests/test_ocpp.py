@@ -82,7 +82,7 @@ def transaction(db, tenant_context_fixture):
 
 def test_change_status(handler: OcppHandler, instance: ConnectorModel, send_event_patch):
     data = ChangeConnectorStatus(
-        charger=instance.charger.cp_id,
+        charger="test.localhost:%s" % instance.charger.cp_id,
         conn=instance.conn_id,
         status=ConnectorStatusEnum.AVAILABLE,
     )
@@ -93,7 +93,7 @@ def test_change_status(handler: OcppHandler, instance: ConnectorModel, send_even
 
 def test_start_transaction_event(handler: OcppHandler, transaction: TransactionModel, send_event_patch):
     data = StartTransaction(
-        charger=transaction.conn.charger.cp_id,
+        charger="test.localhost:%s" % transaction.conn.charger.cp_id,
         conn=transaction.conn.conn_id,
         tag=transaction.tag if transaction.tag is not None else generate_tag(),
         meter_start=transaction.meter_start,
@@ -105,7 +105,7 @@ def test_start_transaction_event(handler: OcppHandler, transaction: TransactionM
 
 def test_stop_transaction_event(handler: OcppHandler, transaction: TransactionModel, send_event_patch):
     data = StopTransaction(
-        charger=transaction.conn.charger.cp_id,
+        charger="test.localhost:%s" % transaction.conn.charger.cp_id,
         meter_stop=transaction.meter_stop,
         transaction_id=transaction.pk,
     )
@@ -122,7 +122,7 @@ def test_meter_value(handler: OcppHandler, meter_value, send_event_patch):
 
 
 def test_health(handler: OcppHandler, instance: ConnectorModel, send_event_patch):
-    data = Health(charger=str(instance.charger.cp_id))
+    data = Health(charger="test.localhost:%s" % instance.charger.cp_id)
     event = Events(event=EventsEnum.HEALTH, data=data, domain="test.localhost")
     handler.health(event, "test.localhost")
     send_event_patch.assert_called()
@@ -158,7 +158,7 @@ def test_get_meter(meter_value):
 
 def test_stop_transaction(transaction: TransactionModel):
     data = StopTransaction(
-        charger=transaction.conn.charger.cp_id,
+        charger="test.localhost:%s" % transaction.conn.charger.cp_id,
         meter_stop=transaction.meter_stop,
         transaction_id=transaction.pk,
     )
@@ -166,14 +166,14 @@ def test_stop_transaction(transaction: TransactionModel):
 
 
 def test_disconnect_charger(handler: OcppHandler, transaction: TransactionModel, send_event_patch):
-    data = DisconnectCharger(charger=transaction.conn.charger.cp_id)
+    data = DisconnectCharger(charger="test.localhost:%s" % transaction.conn.charger.cp_id)
     event = Events(event=EventsEnum.DISCONNECT_CHARGER, data=data, domain="test.localhost")
     handler.disconnect_charger(event, "test.localhost")
     send_event_patch.assert_called()
 
 
 def test_connect_charger(handler: OcppHandler, transaction: TransactionModel, send_event_patch):
-    data = ConnectCharger(charger=transaction.conn.charger.cp_id)
+    data = ConnectCharger(charger="test.localhost:%s" % transaction.conn.charger.cp_id)
     event = Events(event=EventsEnum.CONNECT_CHARGER, data=data, domain="test.localhost")
     handler.connect_charger(event)
     send_event_patch.assert_called()

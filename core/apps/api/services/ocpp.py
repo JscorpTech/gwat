@@ -65,7 +65,7 @@ def generate_tag(length=10) -> str:
     return tag
 
 
-def remote_start_transaction(charger_id: str, conn_id: int, tag: str) -> (bool, str):
+def remote_start_transaction(host: str, charger_id: str, conn_id: int, tag: str) -> (bool, str):
     """
     Args:
         charger_id (str): charger point id
@@ -77,7 +77,7 @@ def remote_start_transaction(charger_id: str, conn_id: int, tag: str) -> (bool, 
     logging.info("Remote command start transaction charger=%s conn=%s tag=%s", charger_id, conn_id, tag)
     try:
         resp = send_command(
-            charger_id,
+            make_charger_id(host, charger_id),
             RemoteCommands.REMOTE_START_TRANSACTION.value,
             RemoteStartTransaction(tag=tag, connector_id=str(conn_id)),
         )
@@ -89,7 +89,7 @@ def remote_start_transaction(charger_id: str, conn_id: int, tag: str) -> (bool, 
         return False, _("Internal server error")
 
 
-def remote_stop_transaction(charger_id: int, transaction_id: int) -> (bool, str):
+def remote_stop_transaction(host: str, charger_id: int, transaction_id: int) -> (bool, str):
     """
     Args:
         charger_id (str): charger point id
@@ -100,7 +100,7 @@ def remote_stop_transaction(charger_id: int, transaction_id: int) -> (bool, str)
     logging.info("Remote command stop transaction charger=%s transaction=%s", charger_id, transaction_id)
     try:
         resp = send_command(
-            charger_id,
+            make_charger_id(host, charger_id),
             RemoteCommands.REMOTE_STOP_TRANSACTION.value,
             RemoteStopTransaction(transaction_id=transaction_id),
         )
@@ -166,7 +166,7 @@ def stop_transaction(
     """
     if data is None:
         data = StopTransaction(
-            charger=transaction.conn.charger.pk,
+            charger="%s:%s" % (host, transaction.conn.charger.pk),
             transaction_id=transaction.pk,
             reason="",
             meter_stop=transaction.last_meter,
@@ -217,3 +217,34 @@ def connector_active_transaction(conn: ConnectorModel) -> TransactionModel:
     if transaction is None:
         return None
     return transaction
+
+
+def parse_charger_id(charger: str) -> str:
+    """Parse charger id example test.localhost:212 -> 212
+
+    Args:
+        charger: [TODO:description]
+
+    Returns:
+        37H
+
+    Raises:
+        Exception: Invalid charger id
+    """
+    id_segments = charger.split(":")
+    if len(id_segments) != 2:
+        raise Exception("Invalid charger id")
+    return id_segments[1]
+
+
+def make_charger_id(host: str, charger: str) -> str:
+    """[TODO:summary]
+
+    Args:
+        host: [TODO:description]
+        charger: [TODO:description]
+
+    Returns:
+        [TODO:description]
+    """
+    return "%s:%s" % (host, charger)

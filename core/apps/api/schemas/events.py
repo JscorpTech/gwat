@@ -24,7 +24,7 @@ class Events(BaseModel):
 
 
 class ChangeConnectorStatus(BaseModel):
-    charger: int
+    charger: str
     conn: int
     status: ConnectorStatusEnum
 
@@ -32,7 +32,7 @@ class ChangeConnectorStatus(BaseModel):
 
 
 class StartTransaction(BaseModel):
-    charger: int
+    charger: str
     conn: int
     tag: str
     meter_start: int
@@ -41,7 +41,7 @@ class StartTransaction(BaseModel):
 
 
 class StopTransaction(BaseModel):
-    charger: int
+    charger: str
     transaction_id: int
     reason: str = ""
     meter_stop: int
@@ -86,8 +86,8 @@ class DataTransfer(BaseModel):
 
 
 class DisconnectCharger(BaseModel):
-    charger: Union[str, int]
+    charger: str
 
 
 class ConnectCharger(BaseModel):
-    charger: Union[str, int]
+    charger: str
