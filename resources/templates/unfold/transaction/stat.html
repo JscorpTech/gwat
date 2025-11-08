@@ -1,0 +1,72 @@
+{% load unfold %}
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <!-- Total Amount Card -->
+    {% component "unfold/components/card.html" %}
+        <div class="p-4">
+            <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">Jami Summa</div>
+            <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {{ transaction_stats.total_amount|default:0|floatformat:2 }} so'm
+            </div>
+        </div>
+    {% endcomponent %}
+
+    <!-- Total Transactions Card -->
+    {% component "unfold/components/card.html" %}
+        <div class="p-4">
+            <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">Jami Transactionlar</div>
+            <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {{ transaction_stats.total_transactions|default:0 }}
+            </div>
+        </div>
+    {% endcomponent %}
+
+    <!-- Total Energy Consumed Card -->
+    {% component "unfold/components/card.html" %}
+        <div class="p-4">
+            <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">Jami Iste'mol Qilingan Energiya</div>
+            <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {{ transaction_stats.total_energy_consumed|default:0|floatformat:3 }} Wh
+            </div>
+        </div>
+    {% endcomponent %}
+
+    <!-- Completed Transactions Card -->
+    {% component "unfold/components/card.html" %}
+        <div class="p-4">
+            <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">Tugallangan</div>
+            <div class="text-2xl font-bold text-green-600 dark:text-green-400">
+                {{ transaction_stats.completed_count|default:0 }}
+            </div>
+        </div>
+    {% endcomponent %}
+</div>
+
+<!-- Status Breakdown Card -->
+<div class="mb-6">
+    {% component "unfold/components/card.html" %}
+        <div class="p-4">
+            {% component "unfold/components/title.html" %}
+                Status bo'yicha
+            {% endcomponent %}
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                <div class="text-center">
+                    <div class="text-sm text-gray-500 dark:text-gray-400">Charging</div>
+                    <div class="text-xl font-semibold text-blue-600">{{ transaction_stats.charging_count|default:0 }}</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-sm text-gray-500 dark:text-gray-400">Pending</div>
+                    <div class="text-xl font-semibold text-yellow-600">{{ transaction_stats.pending_count|default:0 }}</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-sm text-gray-500 dark:text-gray-400">Failed</div>
+                    <div class="text-xl font-semibold text-red-600">{{ transaction_stats.failed_count|default:0 }}</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-sm text-gray-500 dark:text-gray-400">Stopped</div>
+                    <div class="text-xl font-semibold text-red-600">{{ transaction_stats.stopped_count|default:0 }}</div>
+                </div>
+            </div>
+        </div>
+    {% endcomponent %}
+</div>

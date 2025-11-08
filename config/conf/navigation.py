@@ -19,12 +19,33 @@ PAGES = [
             {
                 "title": _("Users"),
                 "icon": "group",
-                "link": reverse_lazy("admin:http_user_changelist"),
+                "link": reverse_lazy("admin:accounts_user_changelist"),
             },
             {
                 "title": _("Group"),
                 "icon": "group",
                 "link": reverse_lazy("admin:auth_group_changelist"),
+            },
+        ],
+    },
+    {
+        "title": _("Dashboard"),
+        "seperator": True,
+        "items": [
+            {
+                "title": _("Chargers"),
+                "icon": "group",
+                "link": reverse_lazy("admin:api_chargermodel_changelist"),
+            },
+            {
+                "title": _("Connectors"),
+                "icon": "group",
+                "link": reverse_lazy("admin:api_connectormodel_changelist"),
+            },
+            {
+                "title": _("Transactions"),
+                "icon": "group",
+                "link": reverse_lazy("admin:api_transactionmodel_changelist"),
             },
         ],
     },

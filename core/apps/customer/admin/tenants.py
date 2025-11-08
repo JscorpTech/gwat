@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib import admin
-from django_tenants.admin import TenantAdminMixin
 from unfold.admin import ModelAdmin, TabularInline
 
 from core.apps.customer.models import Client
