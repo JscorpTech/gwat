@@ -39,7 +39,7 @@ class Command(BaseCommand):
                         logging.error("handler not found event=%s", event.event)
                         continue
                     try:
-                        tenant = Domain.objects.filter(domain=event.domain)
+                        tenant = Domain.objects.get(domain=event.domain).tenant
                     except Domain.DoesNotExist:
                         logging.error("Tenant not found domain=%s", event.domain)
                         return
