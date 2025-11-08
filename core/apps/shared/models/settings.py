@@ -29,3 +29,14 @@ class OptionsModel(models.Model):
         db_table = "options"
         verbose_name = _("Options")
         verbose_name_plural = _("Options")
+
+
+class PriceRange(models.Model):
+    price = models.DecimalField(max_digits=20, decimal_places=2)
+    start = models.TimeField()
+    stop = models.TimeField()
+
+    class Meta:
+        db_table = "price_range"
+        verbose_name = _("Price Range")
+        verbose_name_plural = _("Price Range")
