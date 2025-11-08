@@ -10,8 +10,22 @@ def instance(db, tenant_context_fixture):
 
 
 @pytest.fixture
-def charger_api_client(instance, api_client):
-    # api_client comes from conftest.py
+def authenticated_user(db, tenant_context_fixture):
+    """Create an authenticated superuser for API tests"""
+    from core.apps.accounts.models import User
+    user = User.objects.create_superuser(
+        phone='+998901234567',
+        password='testpass123',
+        is_staff=True,
+        is_superuser=True
+    )
+    return user
+
+
+@pytest.fixture
+def charger_api_client(instance, api_client, authenticated_user):
+    # Authenticate the client
+    api_client.force_authenticate(user=authenticated_user)
     return api_client, instance
 
 
