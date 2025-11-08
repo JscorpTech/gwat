@@ -112,6 +112,10 @@ class OcppHandler:
         transaction.meter_consumed = meter_consumed
         transaction.last_meter = meter_current
         transaction.save()
+        logging.info(
+            "transaction info transaction=%s current_meter=%s amoun=%s meter_consumed=%s"
+            % (transaction, meter_current, price, meter_consumed)
+        )
         ws_transaction_event(transaction, host)
 
         if transaction.limit is not None:

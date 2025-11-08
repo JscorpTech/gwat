@@ -9,6 +9,7 @@ from core.apps.api.schemas import Events
 from core.apps.api.schemas.events import EventsEnum
 from core.apps.customer.models import Domain
 from django_tenants.utils import tenant_context
+from django.db import close_old_connections
 
 
 class Command(BaseCommand):
@@ -21,6 +22,7 @@ class Command(BaseCommand):
             ocpp_handler = OcppHandler()
             while True:
                 try:
+                    close_old_connections()
                     _, message = client.blpop("events")
                     logging.info("new event data=%s", message)
                     event = Events.model_validate_json(message)
