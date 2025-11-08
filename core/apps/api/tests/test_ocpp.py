@@ -86,7 +86,7 @@ def test_chage_status(handler: OcppHandler, instance: ConnectorModel):
         conn=instance.conn_id,
         status=ConnectorStatusEnum.AVAILABLE,
     )
-    event = Events(event=EventsEnum.CHANGE_CONNECTOR_STATUS, data=data)
+    event = Events(event=EventsEnum.CHANGE_CONNECTOR_STATUS, data=data, domain="test.localhost")
     handler.change_connector_status(event)
 
 
@@ -97,7 +97,7 @@ def test_start_transaction_event(handler: OcppHandler, transaction: TransactionM
         tag=transaction.tag if transaction.tag is not None else generate_tag(),
         meter_start=transaction.meter_start,
     )
-    event = Events(event=EventsEnum.START_TRANSACTION, data=data)
+    event = Events(event=EventsEnum.START_TRANSACTION, data=data, domain="test.localhost")
     handler.start_transaction(event)
 
 
@@ -107,19 +107,19 @@ def test_stop_transaction_event(handler: OcppHandler, transaction: TransactionMo
         meter_stop=transaction.meter_stop,
         transaction_id=transaction.pk,
     )
-    event = Events(event=EventsEnum.STOP_TRANSACTION, data=data)
+    event = Events(event=EventsEnum.STOP_TRANSACTION, data=data, domain="test.localhost")
     handler.stop_transaction(event)
 
 
 def test_meter_value(handler: OcppHandler, meter_value):
     data, _ = meter_value
-    event = Events(event=EventsEnum.STOP_TRANSACTION, data=data)
+    event = Events(event=EventsEnum.STOP_TRANSACTION, data=data, domain="test.localhost")
     handler.meter_value(event)
 
 
 def test_health(handler: OcppHandler, instance: ConnectorModel):
     data = Health(charger=str(instance.charger.cp_id))
-    event = Events(event=EventsEnum.HEALTH, data=data)
+    event = Events(event=EventsEnum.HEALTH, data=data, domain="test.localhost")
     handler.health(event)
 
 
@@ -160,11 +160,11 @@ def test_stop_transaction(transaction: TransactionModel):
 
 def test_disconnect_charger(handler: OcppHandler, transaction: TransactionModel):
     data = DisconnectCharger(charger=transaction.conn.charger.cp_id)
-    event = Events(event=EventsEnum.DISCONNECT_CHARGER, data=data)
+    event = Events(event=EventsEnum.DISCONNECT_CHARGER, data=data, domain="test.localhost")
     handler.disconnect_charger(event)
 
 
 def test_connect_charger(handler: OcppHandler, transaction: TransactionModel):
     data = ConnectCharger(charger=transaction.conn.charger.cp_id)
-    event = Events(event=EventsEnum.CONNECT_CHARGER, data=data)
+    event = Events(event=EventsEnum.CONNECT_CHARGER, data=data, domain="test.localhost")
     handler.connect_charger(event)
