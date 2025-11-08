@@ -6,9 +6,9 @@ from django.core.management import BaseCommand
 import redis
 from core.apps.api.ocpp.handlers import OcppHandler
 from core.apps.api.schemas import Events
-from core.apps.api.schemas.events import (
-    EventsEnum,
-)
+from core.apps.api.schemas.events import EventsEnum
+from core.apps.customer.models import Domain
+from django_tenants.utils import tenant_context
 
 
 class Command(BaseCommand):
@@ -38,7 +38,13 @@ class Command(BaseCommand):
                     if handler is None:
                         logging.error("handler not found event=%s", event.event)
                         continue
-                    handler(event)
+                    try:
+                        tenant = Domain.objects.filter(domain=event.domain)
+                    except Domain.DoesNotExist:
+                        logging.error("Tenant not found domain=%s", event.domain)
+                        return
+                    with tenant_context(tenant):
+                        handler(event)
                 except Exception as e:
                     logging.error("events handler error event=%s", event.event)
                     logging.critical(e)

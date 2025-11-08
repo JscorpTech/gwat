@@ -17,6 +17,7 @@ class EventsEnum(Enum):
 
 class Events(BaseModel):
     event: EventsEnum
+    domain: str
     data: Any
 
     model_config = ConfigDict(use_enum_values=True)
