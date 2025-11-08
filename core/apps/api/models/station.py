@@ -31,7 +31,7 @@ class ChargerModel(AbstractBaseModel):
     cp_id = models.PositiveBigIntegerField(_("CpId"), unique=True)
     last_health = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=False)
-    station = models.ForeignKey(StationModel, on_delete=models.CASCADE, related_name="chargers", null=True, blank=True)
+    station = models.ForeignKey(StationModel, on_delete=models.CASCADE, related_name="chargers")
 
     def save(self, *args, **kwargs):
         if not self.cp_id:
@@ -44,7 +44,7 @@ class ChargerModel(AbstractBaseModel):
 
     @classmethod
     def _baker(cls, *args, **kwargs):
-        return baker.make(cls, *args, **kwargs)
+        return baker.make(cls, _fill_optional=True * args, **kwargs)
 
     class Meta:
         db_table = "charger"
@@ -66,7 +66,7 @@ class ConnectorModel(AbstractBaseModel):
 
     @classmethod
     def _baker(cls, *args, **kwargs):
-        return baker.make(cls, *args, **kwargs)
+        return baker.make(cls, charger=ChargerModel._baker(), *args, **kwargs)
 
     class Meta:
         db_table = "connector"
