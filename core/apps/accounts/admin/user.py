@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from unfold.admin import ModelAdmin
 from unfold.forms import AdminPasswordChangeForm  # UserCreationForm,
 from unfold.forms import UserChangeForm
+from unfold.contrib.filters.admin import AutocompleteSelectFilter
 
 
 class CustomUserAdmin(admin.UserAdmin, ModelAdmin):
@@ -14,11 +15,26 @@ class CustomUserAdmin(admin.UserAdmin, ModelAdmin):
         "last_name",
         "phone",
         "role",
+        "station",
+        "is_staff",
     )
-    autocomplete_fields = ["groups", "user_permissions"]
+    list_filter = (
+        ("station", AutocompleteSelectFilter),
+        "role",
+        "is_staff",
+        "is_active",
+    )
+    autocomplete_fields = ["groups", "user_permissions", "station"]
     fieldsets = ((None, {"fields": ("phone",)}),) + (
         (None, {"fields": ("username", "password")}),
         (_("Personal info"), {"fields": ("first_name", "last_name", "email")}),
+        (
+            _("Station"),
+            {
+                "fields": ("station",),
+                "description": "Hodimni stationga biriktirish (Hodim faqat o'z stationidagi ma'lumotlarni ko'radi)",
+            },
+        ),
         (
             _("Permissions"),
             {

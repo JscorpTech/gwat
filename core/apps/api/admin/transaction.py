@@ -77,6 +77,15 @@ class TransactionAdmin(ModelAdmin):
                 response.context_data['transaction_stats'] = stats
         
         return response
+    
+    def get_queryset(self, request):
+        """Hodim faqat o'z stationidagi transactionlarni ko'radi"""
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        if request.user.station:
+            return qs.filter(conn__charger__station=request.user.station)
+        return qs.none()
 
     @display(
         label={

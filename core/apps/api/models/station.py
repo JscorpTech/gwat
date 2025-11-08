@@ -6,11 +6,32 @@ from model_bakery import baker
 from core.apps.api.enums.connectors import ConnectorStatusEnum
 
 
+class StationModel(AbstractBaseModel):
+    name = models.CharField(_("Nomi"), max_length=255)
+    address = models.TextField(_("Manzil"), null=True, blank=True)
+    latitude = models.DecimalField(_("Latitude"), max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(_("Longitude"), max_digits=9, decimal_places=6, null=True, blank=True)
+    is_active = models.BooleanField(_("Faol"), default=True)
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def _baker(cls, *args, **kwargs):
+        return baker.make(cls, *args, **kwargs)
+
+    class Meta:
+        db_table = "station"
+        verbose_name = _("Station")
+        verbose_name_plural = _("Stations")
+
+
 class ChargerModel(AbstractBaseModel):
     name = models.CharField(_("name"))
     cp_id = models.PositiveBigIntegerField(_("CpId"), unique=True)
     last_health = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=False)
+    station = models.ForeignKey(StationModel, on_delete=models.CASCADE, related_name="chargers", null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.cp_id:

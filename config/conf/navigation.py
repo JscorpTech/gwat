@@ -7,7 +7,7 @@ PAGES = [
         "items": [
             {
                 "title": _("Home page"),
-                "icon": "home",
+                "icon": "dashboard",
                 "link": reverse_lazy("admin:index"),
             }
         ],
@@ -18,7 +18,7 @@ PAGES = [
         "items": [
             {
                 "title": _("Users"),
-                "icon": "group",
+                "icon": "people",
                 "link": reverse_lazy("admin:accounts_user_changelist"),
             },
             {
@@ -33,18 +33,23 @@ PAGES = [
         "seperator": True,
         "items": [
             {
+                "title": _("Stations"),
+                "icon": "location_on",
+                "link": reverse_lazy("admin:api_stationmodel_changelist"),
+            },
+            {
                 "title": _("Chargers"),
-                "icon": "group",
+                "icon": "ev_station",
                 "link": reverse_lazy("admin:api_chargermodel_changelist"),
             },
             {
                 "title": _("Connectors"),
-                "icon": "group",
+                "icon": "power",
                 "link": reverse_lazy("admin:api_connectormodel_changelist"),
             },
             {
                 "title": _("Transactions"),
-                "icon": "group",
+                "icon": "receipt_long",
                 "link": reverse_lazy("admin:api_transactionmodel_changelist"),
             },
         ],

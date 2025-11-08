@@ -23,18 +23,222 @@
 
 {% block content %}
     {{ block.super }}
-    <div x-data="data">
-        {% component 'unfold/components/container.html' %}
-            <div class="flex justify-end mb-5 gap-x-3"></div>
-            {% component 'unfold/components/flex.html' with class='grid grid-cols-1 sm:grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-4' %}
-                {% for card in cards %}
-                    {% component 'unfold/components/card.html' with class='w-full cursor-pointer' %}
-                        <h1 class="inline-block font-semibold leading-normal px-2 py-1 rounded text-xxs uppercase whitespace-nowrap text-{{ card.color }}-700 bg-{{ card.color }}-500/20  dark:bg-{{ card.color }}-500/20 dark:text-{{ card.color }}-400">{{ card.title }}</h1>
-                        <h1 class="mt-3 font-[600] text-[20px] ml-1">{{ card.value }}</h1>
-                    {% endcomponent %}
-                {% endfor %}
-            {% endcomponent %}
-        {% endcomponent %}
-    </div>
-{% endblock content %}
+    
+    {% component 'unfold/components/container.html' %}
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
+            {% for item in kpi %}
+                {% component 'unfold/components/card.html' with class='relative overflow-hidden hover:shadow-lg transition-shadow duration-300' %}
+                    <div class="p-4 lg:p-6">
+                        <div class="flex items-start justify-between mb-3 lg:mb-4">
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-xs lg:text-sm font-medium text-gray-500 dark:text-gray-400 mb-1 truncate">{{ item.title }}</h3>
+                                <div class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 truncate">{{ item.metric }}</div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ item.footer }}</p>
+                            </div>
+                            {% if item.icon %}
+                                <div class="flex-shrink-0 w-10 h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center ml-2" style="background-color: {{ item.icon_bg }};">
+                                    <span class="material-symbols-outlined text-xl lg:text-2xl" style="color: {{ item.icon_color }};">{{ item.icon }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% if item.progress %}
+                            <div class="mt-3 lg:mt-4 pt-3 lg:pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 truncate pr-2">{{ item.progress_title }}</span>
+                                    <span class="text-xs font-medium text-gray-900 dark:text-gray-100 flex-shrink-0">{{ item.progress|floatformat:1 }}%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                                    <div class="bg-green-600 h-2 rounded-full transition-all duration-500" style="width: {{ item.progress }}%"></div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endcomponent %}
+            {% endfor %}
+        </div>
 
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8">
+            {% for chart in charts %}
+                {% if chart.type == 'doughnut' %}
+                    {% component 'unfold/components/card.html' with class='hover:shadow-lg transition-shadow duration-300' %}
+                        <div class="p-4 lg:p-6">
+                            <div class="mb-4 lg:mb-6">
+                                <h3 class="text-base lg:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">{{ chart.title }}</h3>
+                                <p class="text-xs lg:text-sm text-gray-500 dark:text-gray-400">{{ chart.description }}</p>
+                            </div>
+                            
+                            <div class="relative" style="height: 250px;">
+                                <canvas id="{{ chart.id }}"></canvas>
+                            </div>
+                        </div>
+                    {% endcomponent %}
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Bar Chart Section (Full Width) -->
+        {% for chart in charts %}
+            {% if chart.type == 'bar' %}
+                {% component 'unfold/components/card.html' with class='mb-6 lg:mb-8 hover:shadow-lg transition-shadow duration-300' %}
+                    <div class="p-4 lg:p-6">
+                        <div class="mb-4 lg:mb-6">
+                            <h3 class="text-base lg:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">{{ chart.title }}</h3>
+                            <p class="text-xs lg:text-sm text-gray-500 dark:text-gray-400">{{ chart.description }}</p>
+                        </div>
+                        
+                        <div class="relative" style="height: 300px;">
+                            <canvas id="{{ chart.id }}"></canvas>
+                        </div>
+                    </div>
+                {% endcomponent %}
+            {% endif %}
+        {% endfor %}
+    {% endcomponent %}
+
+    <!-- Chart.js Script -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            const textColor = isDarkMode ? '#e5e7eb' : '#374151';
+            const gridColor = isDarkMode ? '#374151' : '#e5e7eb';
+            
+            // Common chart options
+            const doughnutOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: {
+                                size: 12,
+                                family: "'Inter', sans-serif"
+                            },
+                            color: textColor,
+                            boxWidth: 10,
+                            boxHeight: 10,
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+                        titleColor: textColor,
+                        bodyColor: textColor,
+                        borderColor: gridColor,
+                        borderWidth: 1,
+                        padding: 12,
+                        boxPadding: 6,
+                        usePointStyle: true,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                                label += ' (' + percentage + '%)';
+                                return label;
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
+                }
+            };
+            
+            const barOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+                        titleColor: textColor,
+                        bodyColor: textColor,
+                        borderColor: gridColor,
+                        borderWidth: 1,
+                        padding: 12,
+                        boxPadding: 6,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y.toLocaleString() + ' so\'m';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: gridColor,
+                            drawBorder: false,
+                        },
+                        ticks: {
+                            color: textColor,
+                            font: {
+                                size: 11
+                            },
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                        },
+                        ticks: {
+                            color: textColor,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
+                }
+            };
+            
+            {% for chart in charts %}
+            // {{ chart.title }}
+            const ctx_{{ chart.id }} = document.getElementById('{{ chart.id }}');
+            if (ctx_{{ chart.id }}) {
+                new Chart(ctx_{{ chart.id }}, {
+                    type: '{{ chart.type }}',
+                    data: {
+                        labels: {{ chart.labels|safe }},
+                        datasets: [{
+                            label: '{{ chart.datasets.label }}',
+                            data: {{ chart.datasets.data|safe }},
+                            backgroundColor: {{ chart.datasets.backgroundColor|safe }}{% if chart.type == 'doughnut' %},
+                            borderWidth: 3,
+                            borderColor: isDarkMode ? '#1f2937' : '#ffffff',
+                            hoverOffset: 10,
+                            hoverBorderWidth: 4{% elif chart.type == 'bar' %},
+                            borderRadius: 6,
+                            borderSkipped: false{% endif %}
+                        }]
+                    },
+                    options: {% if chart.type == 'doughnut' %}doughnutOptions{% elif chart.type == 'bar' %}barOptions{% endif %}
+                });
+            }
+            {% endfor %}
+        });
+    </script>
+{% endblock content %}
