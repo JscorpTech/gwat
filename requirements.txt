@@ -45,3 +45,4 @@ git+https://github.com/JscorpTech/django-tenants.git@master
 # !NOTE: on-websocket
 websockets
 channels-redis
+debugpy

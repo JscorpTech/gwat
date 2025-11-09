@@ -25,6 +25,8 @@ services:
       - gigawat
     env_file:
       - .env
+    ports:
+      - 5678:5678
     build:
       context: .
       dockerfile: ./docker/Dockerfile.web
