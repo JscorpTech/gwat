@@ -44,7 +44,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",  # Cors middleware
     "django.middleware.locale.LocaleMiddleware",  # Locale middleware
     "django.middleware.common.CommonMiddleware",
-    # "django.middleware.csrf.CsrfViewMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -124,7 +124,14 @@ CELERY_BROKER_URL = env("REDIS_URL")
 CELERY_RESULT_BACKEND = env("REDIS_URL")
 
 ALLOWED_HOSTS += env("ALLOWED_HOSTS").split(",")
-CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS").split(",")
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.dwatt.uz",
+]
+CSRF_COOKIE_DOMAIN = ".dwatt.uz"
+CSRF_COOKIE_SECURE = True
+
+CSRF_TRUSTED_ORIGINS += env("CSRF_TRUSTED_ORIGINS").split(",")
 SILKY_AUTHORISATION = True
 SILKY_PYTHON_PROFILER = True
 
