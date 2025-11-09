@@ -26,7 +26,10 @@ class ClientAdmin(ModelAdmin):
         return
 
     def has_view_permission(self, request, view=None):
-        if request.tenant.schema_name == settings.TENANT_ADMIN_SCHEMA:
+        tenant = getattr(request, "tenant", None)
+        if tenant is None:
+            return False
+        if tenant.schema_name == settings.TENANT_ADMIN_SCHEMA:
             return True
         else:
             return False
