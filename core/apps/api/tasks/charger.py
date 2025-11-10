@@ -7,7 +7,6 @@ from django.utils import timezone
 from core.apps.api.enums.connectors import ConnectorStatusEnum
 from core.apps.api.enums.transaction import TransactionStatusEnum
 from core.apps.api.models.station import ChargerModel
-from core.apps.api.schemas.events import StopTransaction
 from core.apps.api.services.ocpp import stop_transaction
 from core.apps.api.services.ws import ws_connector_event
 

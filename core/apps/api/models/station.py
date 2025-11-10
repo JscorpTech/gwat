@@ -14,7 +14,7 @@ class StationModel(AbstractBaseModel):
     is_active = models.BooleanField(_("Faol"), default=True)
 
     def __str__(self):
-        return str(self.pk)
+        return str(self.name)
 
     @classmethod
     def _baker(cls, *args, **kwargs):
