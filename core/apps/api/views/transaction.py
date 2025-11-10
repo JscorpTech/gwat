@@ -23,6 +23,7 @@ from django.utils import timezone
 from rest_framework.decorators import action
 
 from core.apps.api.services.ws import ws_transaction_event
+from django_filters.rest_framework.backends import DjangoFilterBackend
 
 
 @extend_schema(tags=["transaction"])
@@ -30,6 +31,14 @@ class TransactionView(BaseViewSetMixin, ListModelMixin, RetrieveModelMixin, Dest
     queryset = TransactionModel.objects.order_by("-id")
     serializer_class = ListTransactionSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = [
+        "conn",
+        "conn__charger",
+        "conn__charger__station",
+        "status",
+        "is_force_stop",
+    ]
 
     action_permission_classes = {"get_transaction_from_tag": [AllowAny]}
     action_serializer_class = {

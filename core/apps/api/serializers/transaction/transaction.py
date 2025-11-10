@@ -22,6 +22,7 @@ class BaseTransactionSerializer(serializers.ModelSerializer):
             "meter_consumed",
             "amount",
             "soc",
+            "is_force_stop",
             "start_date",
             "end_date",
         ]
