@@ -6,25 +6,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('shared', '0002_pricerange'),
+        ("shared", "0002_pricerange"),
     ]
 
     operations = [
+        migrations.DeleteModel(
+            name="PriceRange",
+        ),
         migrations.CreateModel(
-            name='PriceRangeModel',
+            name="PriceRangeModel",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('price', models.DecimalField(decimal_places=2, max_digits=20)),
-                ('start', models.TimeField()),
-                ('stop', models.TimeField()),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("price", models.DecimalField(decimal_places=2, max_digits=20)),
+                ("start", models.TimeField()),
+                ("stop", models.TimeField()),
             ],
             options={
-                'verbose_name': 'Price Range',
-                'verbose_name_plural': 'Price Range',
-                'db_table': 'price_range',
+                "verbose_name": "Price Range",
+                "verbose_name_plural": "Price Range",
+                "db_table": "price_range",
             },
-        ),
-        migrations.DeleteModel(
-            name='PriceRange',
         ),
     ]

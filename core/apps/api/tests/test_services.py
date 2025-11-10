@@ -14,6 +14,7 @@ def test_generate_str():
     assert len(res) == 10
 
 
-def test_generate_tag(db):
-    res = generate_tag(11)
-    assert len(res) == 11
+@pytest.mark.parametrize("length", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 100])
+def test_generate_tag(db, length):
+    res = generate_tag(length)
+    assert len(res) == length
