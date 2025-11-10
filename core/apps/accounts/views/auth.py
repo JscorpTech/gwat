@@ -1,6 +1,10 @@
+from re import escape
 import uuid
 from typing import Type
 
+from django.db import connection
+
+from core.apps.accounts.serializers.user import ClientSerializer
 from core.services import UserService, SmsService
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
@@ -160,6 +164,7 @@ class ResetPasswordView(BaseViewSetMixin, GenericViewSet, UserService):
 @extend_schema(tags=["me"])
 class MeView(BaseViewSetMixin, GenericViewSet, UserService):
     permission_classes = [IsAuthenticated]
+    action_permission_classes = {"client": [AllowAny]}
 
     def get_serializer_class(self):
         match self.action:
@@ -167,8 +172,17 @@ class MeView(BaseViewSetMixin, GenericViewSet, UserService):
                 return UserSerializer
             case "user_update":
                 return UserUpdateSerializer
+            case "client":
+                return ClientSerializer
             case _:
                 return None
+
+    @action(methods=["GET"], detail=False, url_path="client", url_name="client")
+    def client(self, request):
+        instance = connection.tenant
+        if instance is None:
+            raise PermissionDenied("tenant not found")
+        return Response(data=self.get_serializer(instance=instance).data)
 
     @action(methods=["GET", "OPTIONS"], detail=False, url_path="me")
     def me(self, request):
