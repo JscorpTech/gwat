@@ -11,6 +11,7 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 
 from core.apps.api.enums.transaction import TransactionStatusEnum
+from core.apps.api.filters.transaction import TransactionFilter
 from core.apps.api.models import TransactionModel
 from core.apps.api.serializers.transaction import (
     CreateTransactionSerializer,
@@ -32,13 +33,7 @@ class TransactionView(BaseViewSetMixin, ListModelMixin, RetrieveModelMixin, Dest
     serializer_class = ListTransactionSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = [
-        "conn",
-        "conn__charger",
-        "conn__charger__station",
-        "status",
-        "is_force_stop",
-    ]
+    filterset_class = TransactionFilter
 
     action_permission_classes = {"get_transaction_from_tag": [AllowAny]}
     action_serializer_class = {
