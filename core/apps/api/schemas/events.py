@@ -1,4 +1,4 @@
-from typing import Any, List, Union
+from typing import Any, List, Optional, Union
 from pydantic import BaseModel, ConfigDict
 from core.apps.api.enums import ConnectorStatusEnum
 from enum import Enum
@@ -51,10 +51,10 @@ class StopTransaction(BaseModel):
 
 class SampledValue(BaseModel):
     context: str
-    format: str
-    location: str
+    format: Optional[str] = None
+    location: Optional[str] = None
     measurand: str
-    phase: str
+    phase: Optional[str] = None
     unit: str
     value: str
 
@@ -80,15 +80,11 @@ class Health(BaseModel):
     charger: str
 
 
-class DataTransferValue(BaseModel):
-    vendorId: str
-    messageId: str
-    data: str
-
-
 class DataTransfer(BaseModel):
     charger: str
-    data: DataTransferValue
+    vendor_id: str
+    message_id: str
+    data: str
 
 
 class DisconnectCharger(BaseModel):

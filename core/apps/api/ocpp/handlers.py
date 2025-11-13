@@ -137,15 +137,14 @@ class OcppHandler:
         Raise:
             ValueError: invalid data
         """
-        data = DataTransfer.model_validate(event.data)
-        value = data.data
-        transfer_data = DataTransferMeterValue.model_validate(json.loads(value.data))
-        meter_value = parse_meter_values(transfer_data.meterValue)
+        data_transfer = DataTransfer.model_validate(event.data)
+        data = DataTransferMeterValue.model_validate_json(data_transfer.data)
+        meter_value = parse_meter_values(data.meterValue)
         if len(meter_value) <= 0:
             raise ValueError("Invalid DataTransfer data")
         soc = get_soc(meter_value[0])
         try:
-            transaction = TransactionModel.objects.get(pk=transfer_data.transactionId)
+            transaction = TransactionModel.objects.get(pk=data.transactionId)
         except TransactionModel.DoesNotExist:
             raise ValueError("Invalid trnasaction id")
         transaction.soc = soc
