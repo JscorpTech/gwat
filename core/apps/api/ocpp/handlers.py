@@ -1,4 +1,5 @@
 from decimal import Decimal
+import json
 from typing import Optional
 from core.apps.api.enums.transaction import TransactionStatusEnum
 from django.utils import timezone
@@ -10,15 +11,19 @@ from core.apps.api.schemas import Events
 from core.apps.api.schemas.events import (
     ChangeConnectorStatus,
     ConnectCharger,
+    DataTransfer,
+    DataTransferMeterValue,
     DisconnectCharger,
     Health,
     MeterValue,
+    MeterValueData,
     StartTransaction,
     StopTransaction,
 )
 from core.apps.api.services.payment import calc_energy_price
 from core.apps.api.services.ocpp import (
     get_meter,
+    get_soc,
     parse_charger_id,
     parse_meter_values,
     remote_stop_transaction,
@@ -129,8 +134,22 @@ class OcppHandler:
 
         Args:
             event: [TODO:description]
+        Raise:
+            ValueError: invalid data
         """
-        print(event)
+        data = DataTransfer.model_validate(event.data)
+        value = data.data
+        transfer_data = DataTransferMeterValue.model_validate(json.loads(value.data))
+        meter_value = parse_meter_values(transfer_data.meterValue)
+        if len(meter_value) <= 0:
+            raise ValueError("Invalid DataTransfer data")
+        soc = get_soc(meter_value[0])
+        try:
+            transaction = TransactionModel.objects.get(pk=transfer_data.transactionId)
+        except TransactionModel.DoesNotExist:
+            raise ValueError("Invalid trnasaction id")
+        transaction.soc = soc
+        transaction.save()
 
     def disconnect_charger(self, event: Events, host: str):
         """Disconnect Charger

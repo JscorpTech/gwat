@@ -27,6 +27,7 @@ class TransactionMetrics(BaseModel):
     price: str
     meter_consumed: Union[str, int]
     power: int
+    soc: Optional[int]
     limit: Optional[Union[int, str]]
     status: TransactionStatusEnum
 

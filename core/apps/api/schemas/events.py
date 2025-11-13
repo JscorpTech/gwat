@@ -64,6 +64,12 @@ class MeterValueData(BaseModel):
     sampledValue: List[SampledValue]
 
 
+class DataTransferMeterValue(BaseModel):
+    connectorId: int
+    transactionId: int
+    meterValue: List[MeterValueData]
+
+
 class MeterValue(BaseModel):
     conn: int
     transaction_id: int

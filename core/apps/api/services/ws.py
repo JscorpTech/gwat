@@ -20,6 +20,7 @@ def ws_transaction_event(transaction: TransactionModel, host: str):
         price=str(transaction.amount),
         limit=str(transaction.limit) if transaction.limit is not None else None,
         power=conn.power,
+        soc=transaction.soc,
         status=transaction.status,
     )
     payload = WsEvents(event=WsEventsEnum.TRANSACTION_METRICS, data=metrics)

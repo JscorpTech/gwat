@@ -130,6 +130,10 @@ def parse_meter_values(data: List[MeterValueData]) -> List[Dict[str, SampledValu
     return meter_values
 
 
+def get_soc(meter_value: Dict[str, SampledValue]) -> int:
+    return 90
+
+
 def get_meter(data: Dict[str, SampledValue]) -> Decimal:
     """Sarflangan energiyani olish
 
