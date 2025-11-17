@@ -15,7 +15,7 @@ class RemoteCommandStatus(Enum):
 
 class RemoteStartTransaction(BaseModel):
     tag: str
-    connector_id: str
+    connector_id: int
 
 
 class RemoteStopTransaction(BaseModel):
