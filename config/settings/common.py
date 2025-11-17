@@ -123,7 +123,7 @@ AUTH_USER_MODEL = "accounts.User"
 CELERY_BROKER_URL = env("REDIS_URL")
 CELERY_RESULT_BACKEND = env("REDIS_URL")
 
-ALLOWED_HOSTS += env("ALLOWED_HOSTS").split(",")
+# ALLOWED_HOSTS += env("ALLOWED_HOSTS").split(",")
 
 CSRF_TRUSTED_ORIGINS = [
     "https://*.dwatt.uz",

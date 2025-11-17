@@ -79,7 +79,7 @@ def remote_start_transaction(host: str, charger_id: str, conn_id: int, tag: str)
         resp = send_command(
             make_charger_id(host, charger_id),
             RemoteCommands.REMOTE_START_TRANSACTION.value,
-            RemoteStartTransaction(tag=tag, connector_id=str(conn_id)),
+            RemoteStartTransaction(tag=tag, connector_id=int(conn_id)),
         )
         if resp.get("status") == RemoteCommandStatus.ACCEPTED.value:
             return True, ""
