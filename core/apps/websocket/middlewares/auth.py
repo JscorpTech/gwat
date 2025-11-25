@@ -23,6 +23,7 @@ class JWTAuthMiddleware:
         close_old_connections()
         try:
             if jwt_token_list := parse_qs(scope["query_string"].decode("utf8")).get("token", None):
+                logging.info("ULANISHGA urinish")
                 jwt_token = jwt_token_list[0]
                 jwt_payload = self.get_payload(jwt_token)
                 headers = scope.get("headers", [])
@@ -47,11 +48,8 @@ class JWTAuthMiddleware:
             KeyError,
             ExpiredSignatureError,
             DecodeError,
-        ):
-            traceback.print_exc()
-        # except Exception as e:
-        #     logging.error(e)
-        #     scope["user"] = AnonymousUser()
+        ) as e:
+            logging.error(e)
         return await self.app(scope, receive, send)
 
     @database_sync_to_async
