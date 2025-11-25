@@ -1,7 +1,6 @@
 import json
 import logging
 
-from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 from core.apps.websocket.services.services import get_group_name
@@ -14,6 +13,10 @@ class EventsConsumer(AsyncWebsocketConsumer):
         self.station = None
         if hasattr(user, "station") and self.user is not None:
             self.station = self.user.station
+        if self.station is None:
+            logging.warning("user station not assign")
+            await self.close()
+            return
         self.group = get_group_name(self.scope.get("host", ""), self.station)
         if user is None or not user.is_authenticated:
             logging.warning("Muvofaqiyatsiz ulanishga urunish")
