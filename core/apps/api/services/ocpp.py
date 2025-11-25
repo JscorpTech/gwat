@@ -131,7 +131,26 @@ def parse_meter_values(data: List[MeterValueData]) -> List[Dict[str, SampledValu
 
 
 def get_soc(meter_value: Dict[str, SampledValue]) -> int:
-    return 90
+    """SoC qiymatini meter_value dan olish
+    
+    Args:
+        meter_value: measurand nomlariga ko'ra indexlangan SampledValue dict
+        
+    Returns:
+        int: SoC foiz qiymati (0-100), agar topilmasa 0
+    """
+    # OCPP standartda SoC "SoC" measurand orqali keladi
+    if "SoC" in meter_value:
+        try:
+            return int(float(meter_value["SoC"].value))
+        except (ValueError, AttributeError) as e:
+            logging.warning("SoC qiymatini parse qilishda xato: %s", e)
+            return 0
+    
+    # Agar SoC yo'q bo'lsa, boshqa measurandlar orqali hisoblash mumkin emas
+    # 0 qaytaramiz yoki oldingi qiymatni saqlash kerak
+    logging.debug("SoC measurand topilmadi meter_value=%s", meter_value.keys())
+    return 0
 
 
 def get_meter(data: Dict[str, SampledValue]) -> Decimal:

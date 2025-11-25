@@ -16,7 +16,6 @@ from core.apps.api.schemas.events import (
     DisconnectCharger,
     Health,
     MeterValue,
-    MeterValueData,
     StartTransaction,
     StopTransaction,
 )
@@ -113,13 +112,19 @@ class OcppHandler:
         # meter_consumed: ishlatilgan energiya
         meter_consumed = meter_current - meter_start
         price = calc_energy_price(meter_consumed)
+        
+        # SoC ni yangilash
+        soc = get_soc(meter_value)
+        if soc > 0:
+            transaction.soc = soc
+        
         transaction.amount = price
         transaction.meter_consumed = meter_consumed
         transaction.last_meter = meter_current
         transaction.save()
         logging.info(
-            "transaction info transaction=%s current_meter=%s amoun=%s meter_consumed=%s"
-            % (transaction, meter_current, price, meter_consumed)
+            "transaction info transaction=%s current_meter=%s amount=%s meter_consumed=%s soc=%s"
+            % (transaction, meter_current, price, meter_consumed, transaction.soc)
         )
         ws_transaction_event(transaction, host)
 
@@ -147,8 +152,13 @@ class OcppHandler:
             transaction = TransactionModel.objects.get(pk=data.transactionId)
         except TransactionModel.DoesNotExist:
             raise ValueError("Invalid trnasaction id")
-        transaction.soc = soc
-        transaction.save()
+        # Faqat SoC topilgan bo'lsa yangilash (0 dan katta)
+        if soc > 0:
+            transaction.soc = soc
+            transaction.save()
+            logging.info("SoC yangilandi transaction=%s soc=%s", transaction.pk, soc)
+        else:
+            logging.debug("SoC topilmadi yoki 0, yangilanmadi transaction=%s", transaction.pk)
 
     def disconnect_charger(self, event: Events, host: str):
         """Disconnect Charger
