@@ -14,7 +14,7 @@ BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
 SECRET_KEY = env.str("DJANGO_SECRET_KEY")
 DEBUG = env.bool("DEBUG")
 
-ALLOWED_HOSTS: Union[List[str]] = ["*"]
+ALLOWED_HOSTS: Union[List[str]] = ["*", ".dwatt.uz"]
 
 if env.bool("PROTOCOL_HTTPS", False):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
